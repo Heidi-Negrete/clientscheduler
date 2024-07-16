@@ -1,3 +1,6 @@
+using heidischwartz_c969.Forms;
+using heidischwartz_c969.Models;
+
 namespace heidischwartz_c969
 {
     internal static class Program
@@ -6,7 +9,7 @@ namespace heidischwartz_c969
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            //Application.Run(new Form1());
+            Application.Run(new Login());
         }
     }
 }
