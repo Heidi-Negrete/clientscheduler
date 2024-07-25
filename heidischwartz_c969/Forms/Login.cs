@@ -13,19 +13,20 @@ using System.Windows.Forms;
 
 namespace heidischwartz_c969.Forms
 {
-    // login attempted event
-
     public partial class Login : Form, ILoginView
     {
         private LoginPresenter _loginPresenter;
         private ErrorProvider _errorProvider;
+        public SchedulerService Scheduler { get; set; }
         public event EventHandler<EventArgs> LoginAttempted;
         string ILoginView.Username { get => this.tbUsername.Text; set => tbUsername.Text = value; }
         string ILoginView.Password { get => this.tbPassword.Text; set => tbPassword.Text = value; }
 
-        public Login()
+        public Login(SchedulerService schedulerService)
         {
             InitializeComponent();
+            if (schedulerService == null) throw new ArgumentNullException("Scheduler Service");
+            Scheduler = schedulerService;
             _loginPresenter = new LoginPresenter(this);
             _errorProvider = new ErrorProvider();
         }
@@ -55,6 +56,24 @@ namespace heidischwartz_c969.Forms
         public void FailLogin()
         {
             MessageBox.Show("Login Failed. Please check your username and password and try again.");
+        }
+
+        public void LaunchDashboard()
+        {
+            this.Hide();
+            var Dashboard = new MainDashboard(Scheduler);
+            Dashboard.FormClosed += (s, args) => this.Close();
+            Dashboard.Show();
+        }
+
+        // THIS CURRENTLY DOES NOT WORK.
+        private void Login_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                MessageBox.Show("trying");
+                btnLogin_Click(sender, e);
+            }
         }
     }
 }

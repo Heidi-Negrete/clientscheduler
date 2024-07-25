@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace heidischwartz_c969.Views
+namespace heidischwartz_c969
 {
-    public interface IView
+    internal static class UserContext
     {
-        public SchedulerService Scheduler { get; set; }
+        static public string? name {get; set;} 
     }
 }

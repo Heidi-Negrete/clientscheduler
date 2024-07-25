@@ -9,7 +9,11 @@ namespace heidischwartz_c969
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new Login());
+
+            
+            var repository = new MySqlClientSchedulerRepository(new ClientSchedulerContext());
+            var schedulerService = new SchedulerService(repository);
+            Application.Run(new Login(schedulerService));
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace heidischwartz_c969.Views
+namespace heidischwartz_c969
 {
-    public interface IView
+    internal interface ISchedulerService
     {
-        public SchedulerService Scheduler { get; set; }
+
     }
 }

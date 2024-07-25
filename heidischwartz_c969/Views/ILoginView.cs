@@ -13,5 +13,6 @@ namespace heidischwartz_c969.Views
         public string Username { get; set; }
         public string Password { get; set; }
         public void FailLogin();
+        public void LaunchDashboard();
     }
 }
