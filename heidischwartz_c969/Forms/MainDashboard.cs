@@ -42,7 +42,7 @@ namespace heidischwartz_c969.Forms
         }
 
         // bind data to the dgv and the available reports to the combobox
-        private void BindData()
+        public void BindData()
         {
             cbReports.Items.Add(Reports);
 
@@ -93,8 +93,7 @@ namespace heidischwartz_c969.Forms
 
         private void btnLogout_Clicked(object sender, EventArgs e)
         {
-            // close current form end all threads etc and show new login form
-            throw new NotImplementedException();
+            LoggedOut?.Invoke(this, EventArgs.Empty);
         }
 
         private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
@@ -112,6 +111,14 @@ namespace heidischwartz_c969.Forms
         private void dgvWeekView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             dgvWeekView.ClearSelection();
+        }
+
+        public void Logout()
+        {
+            this.Hide();
+            var Login = new Login(Scheduler);
+            Login.FormClosed += (s, args) => this.Close();
+            Login.Show();
         }
     }
 }

@@ -16,6 +16,10 @@ namespace heidischwartz_c969.Views
         public event EventHandler<EventArgs> LoggedOut;
         public event EventHandler<EventArgs> ReportRequested;
         public event EventHandler<EventArgs> ClientsManaged;
+
+        public void Logout();
+
+        public void BindData();
         public List<Appointment> Appointments { get; set; } // ?
         public string[] WeekDays { get; set; } // ?
         public List<string> Reports { get; set; }

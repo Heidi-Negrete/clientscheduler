@@ -21,15 +21,12 @@ namespace heidischwartz_c969.Presenters
 
         private void View_LoginAttempted(object sender, EventArgs e)
         {
-            // to do implement login logic
-            //UserContext.name = View.Username;
             if (Scheduler.Login(View.Username, View.Password))
             {
-                UserContext.name = View.Username;
+                UserContext.Name = View.Username;
                 View.LoginAttempted -= View_LoginAttempted;
                 View.LaunchDashboard();
                 return;
-                // unsubscribe from events and switch to the Dashboard
             }
             View.FailLogin();
         }
