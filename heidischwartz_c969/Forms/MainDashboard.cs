@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Serilog;
 
 namespace heidischwartz_c969.Forms
 {
@@ -33,10 +34,14 @@ namespace heidischwartz_c969.Forms
         public DateTime dateTime { get; set; }
         public string Username { get => this.lblUserStamp.Text; set => lblUserStamp.Text = value; }
         public string LoginTime { get => this.lblLoginStamp.Text; set => lblLoginStamp.Text = value; }
-        public MainDashboard(SchedulerService scheduler)
+
+        private readonly ILogger _logger;
+
+        public MainDashboard(SchedulerService scheduler, ILogger logger)
         {
             InitializeComponent();
-            _dashboardPresenter = new DashboardPresenter(this);
+            _logger = logger;
+            _dashboardPresenter = new DashboardPresenter(this, _logger);
             _errorProvider = new ErrorProvider();
             Scheduler = scheduler;
         }
@@ -116,7 +121,7 @@ namespace heidischwartz_c969.Forms
         public void Logout()
         {
             this.Hide();
-            var Login = new Login(Scheduler);
+            var Login = new Login(Scheduler, _logger);
             Login.FormClosed += (s, args) => this.Close();
             Login.Show();
         }

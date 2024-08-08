@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Serilog;
 
 namespace heidischwartz_c969.Forms
 {
@@ -22,12 +23,17 @@ namespace heidischwartz_c969.Forms
         string ILoginView.Username { get => this.tbUsername.Text; set => tbUsername.Text = value; }
         string ILoginView.Password { get => this.tbPassword.Text; set => tbPassword.Text = value; }
 
-        public Login(SchedulerService schedulerService)
+        private ILogger _logger;
+
+
+
+        public Login(SchedulerService schedulerService, ILogger logger)
         {
             InitializeComponent();
             if (schedulerService == null) throw new ArgumentNullException("Scheduler Service");
             Scheduler = schedulerService;
-            _loginPresenter = new LoginPresenter(this);
+            _logger = logger;
+            _loginPresenter = new LoginPresenter(this, _logger);
             _errorProvider = new ErrorProvider();
         }
 
@@ -61,7 +67,7 @@ namespace heidischwartz_c969.Forms
         public void LaunchDashboard()
         {
             this.Hide();
-            var Dashboard = new MainDashboard(Scheduler);
+            var Dashboard = new MainDashboard(Scheduler, _logger);
             Dashboard.FormClosed += (s, args) => this.Close();
             Dashboard.Show();
         }

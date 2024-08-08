@@ -1,4 +1,5 @@
 ﻿using heidischwartz_c969.Views;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,12 @@ namespace heidischwartz_c969.Presenters
     {
         ILoginView View { get; set; }
         SchedulerService  Scheduler { get; set; }
-        public LoginPresenter(ILoginView view)
+
+        private readonly ILogger _logger;
+        public LoginPresenter(ILoginView view, ILogger logger)
         {
             View = view;
+            _logger = logger;
             View.LoginAttempted += View_LoginAttempted;
             Scheduler = View.Scheduler;
         }
@@ -24,6 +28,7 @@ namespace heidischwartz_c969.Presenters
             if (Scheduler.Login(View.Username, View.Password))
             {
                 UserContext.Name = View.Username;
+                _logger.Information("User {User} logged in", UserContext.Name);
                 View.LoginAttempted -= View_LoginAttempted;
                 View.LaunchDashboard();
                 return;

@@ -1,4 +1,5 @@
 ﻿using heidischwartz_c969.Views;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,12 @@ namespace heidischwartz_c969.Presenters
         IDashboardView _view { get; set; }
         SchedulerService SchedulerService { get; set; }
 
-        public DashboardPresenter(IDashboardView view)
+        private ILogger _logger;
+
+        public DashboardPresenter(IDashboardView view, ILogger logger)
         {
             _view = view;
+            _logger = logger;
             _view.AppointmentAdded += AddAppointment;
             _view.AppointmentChanged += ChangeAppointment;
             _view.AppointmentDeleted += DeleteAppointment;
@@ -32,7 +36,7 @@ namespace heidischwartz_c969.Presenters
         {
             // get reports (from CONFIG?), get Appointments, get days and set that data in view -> then call _view.BindData();
             // Weekdays is a list of strings each formatted w date and List of Appointments based on that time zone formating done in scheduler :/
-            _view.BindData();
+            //_view.BindData();
         }
     private void AddAppointment(object sender, EventArgs e)
         {
