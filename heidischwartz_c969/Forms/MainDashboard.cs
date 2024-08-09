@@ -44,6 +44,8 @@ namespace heidischwartz_c969.Forms
             _dashboardPresenter = new DashboardPresenter(this, _logger);
             _errorProvider = new ErrorProvider();
             Scheduler = scheduler;
+            lblLoginStamp.Text = "Logged in at \n" + DateTime.Now.ToString();
+            lblUserStamp.Text = UserContext.Name;   
         }
 
         // bind data to the dgv and the available reports to the combobox
@@ -55,6 +57,7 @@ namespace heidischwartz_c969.Forms
             dgvAppointments.DataSource = AppointmentBindingList;
             var WeekDaysBindingList = new BindingList<string>(WeekDays);
             dgvWeekView.DataSource = WeekDays;
+            // lblHeadline.Text "User, you have 3 appointment/s today"
         }
 
         private void btnAddAppt_Clicked(object sender, EventArgs e)

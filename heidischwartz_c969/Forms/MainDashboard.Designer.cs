@@ -63,7 +63,7 @@
             AppointmentUrl = new DataGridViewLinkColumn();
             Start = new DataGridViewTextBoxColumn();
             End = new DataGridViewTextBoxColumn();
-            label1 = new Label();
+            lblHeadline = new Label();
             panelSideMenu.SuspendLayout();
             panel4.SuspendLayout();
             panel3.SuspendLayout();
@@ -311,7 +311,7 @@
             panel2.Controls.Add(btnDeleteApt);
             panel2.Controls.Add(btnAddApt);
             panel2.Controls.Add(dgvAppointments);
-            panel2.Controls.Add(label1);
+            panel2.Controls.Add(lblHeadline);
             panel2.Dock = DockStyle.Top;
             panel2.Location = new Point(173, 0);
             panel2.Name = "panel2";
@@ -420,17 +420,16 @@
             End.HeaderText = "End";
             End.Name = "End";
             // 
-            // label1
+            // lblHeadline
             // 
-            label1.AutoSize = true;
-            label1.Dock = DockStyle.Top;
-            label1.Font = new Font("Century Gothic", 21.75F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.ForeColor = Color.White;
-            label1.Location = new Point(0, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(554, 36);
-            label1.TabIndex = 3;
-            label1.Text = "User, you have 3 appointments today.";
+            lblHeadline.AutoSize = true;
+            lblHeadline.Dock = DockStyle.Top;
+            lblHeadline.Font = new Font("Century Gothic", 21.75F, FontStyle.Regular, GraphicsUnit.Point);
+            lblHeadline.ForeColor = Color.White;
+            lblHeadline.Location = new Point(0, 0);
+            lblHeadline.Name = "lblHeadline";
+            lblHeadline.Size = new Size(0, 36);
+            lblHeadline.TabIndex = 3;
             // 
             // MainDashboard
             // 
@@ -444,7 +443,7 @@
             Name = "MainDashboard";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Form1";
+            Text = "Dashboard";
             panelSideMenu.ResumeLayout(false);
             panelSideMenu.PerformLayout();
             panel4.ResumeLayout(false);
@@ -465,7 +464,7 @@
         private Panel panelSideMenu;
         private Panel panel1;
         private Panel panel2;
-        private Label label1;
+        private Label lblHeadline;
         private DataGridView dgvAppointments;
         private MonthCalendar monthCalendar;
         private DataGridView dgvWeekView;
