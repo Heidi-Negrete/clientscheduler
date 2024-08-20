@@ -27,7 +27,6 @@ namespace heidischwartz_c969.Presenters
         {
             if (Scheduler.Login(View.Username, View.Password))
             {
-                UserContext.Name = View.Username;
                 _logger.Information("User {User} logged in", UserContext.Name);
                 View.LoginAttempted -= View_LoginAttempted;
                 View.LaunchDashboard();

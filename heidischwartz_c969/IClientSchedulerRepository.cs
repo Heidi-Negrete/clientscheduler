@@ -9,10 +9,8 @@ namespace heidischwartz_c969
 {
     public interface IClientSchedulerRepository
     {
-        public ClientSchedulerContext _context { get; }
-        public List<Appointment> GetAppointments(int userId);
-        // return raw entities from the persistence store, and
-        // ISchedulerService will apply business logic such as time zone conversions
+        public ClientSchedulerContext _context { get; } // WHAT 
+        public List<Appointment> GetAppointments(int userId, DateTime startDate, DateTime endDate);
         public void UpdateAppointment(Appointment appointment);
         public void DeleteAppointment(Appointment appointment);
         public void AddAppointment(Appointment appointment);

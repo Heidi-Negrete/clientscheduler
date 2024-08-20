@@ -10,10 +10,9 @@ namespace heidischwartz_c969.Presenters
 {
     internal class DashboardPresenter : Presenter
     {
-        IDashboardView _view { get; set; }
-        SchedulerService SchedulerService { get; set; }
+        private readonly IDashboardView _view;
 
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         public DashboardPresenter(IDashboardView view, ILogger logger)
         {
@@ -27,16 +26,23 @@ namespace heidischwartz_c969.Presenters
             _view.ReportRequested += GenerateReport;
             _view.ClientsManaged += ManageClients;
 
-            SchedulerService = _view.Scheduler;
-
             PopulateView();
+            
+            // also start sleeps thread to check if any appointment time within 15 minutes
         }
 
         private void PopulateView()
         {
-            // get reports (from CONFIG?), get Appointments, get days and set that data in view -> then call _view.BindData();
+            // report options hardcoded for now
+            List<string> availableReports = new List<string>{"Appointment Types", "Full Schedule", "Customer Activity" };
+            _view.Reports.AddRange(availableReports);
+            // fix this with new implementation.
+            _view.Scheduler.GetAppointments(UserContext.UserId);
+            _view.Appointments = _view.Scheduler.GetTodaysAppointment();
+            // _view.WeekDays = reconsider.
+            // get Appointments, get days and set that data in view -> then call _view.BindData();
             // Weekdays is a list of strings each formatted w date and List of Appointments based on that time zone formating done in scheduler :/
-            //_view.BindData();
+            _view.BindData();
         }
     private void AddAppointment(object sender, EventArgs e)
         {

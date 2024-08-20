@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             panelSideMenu = new Panel();
             lblUserStamp = new Label();
             lblLoginStamp = new Label();
@@ -64,6 +65,7 @@
             Start = new DataGridViewTextBoxColumn();
             End = new DataGridViewTextBoxColumn();
             lblHeadline = new Label();
+            appointmentBindingSource = new BindingSource(components);
             panelSideMenu.SuspendLayout();
             panel4.SuspendLayout();
             panel3.SuspendLayout();
@@ -72,6 +74,7 @@
             panel5.SuspendLayout();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvAppointments).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)appointmentBindingSource).BeginInit();
             SuspendLayout();
             // 
             // panelSideMenu
@@ -249,42 +252,49 @@
             // Sunday
             // 
             Sunday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Sunday.DataPropertyName = "Sunday";
             Sunday.HeaderText = "Sunday";
             Sunday.Name = "Sunday";
             // 
             // Monday
             // 
             Monday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Monday.DataPropertyName = "Monday";
             Monday.HeaderText = "Monday";
             Monday.Name = "Monday";
             // 
             // Tuesday
             // 
             Tuesday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Tuesday.DataPropertyName = "Tuesday";
             Tuesday.HeaderText = "Tuesday";
             Tuesday.Name = "Tuesday";
             // 
             // Wednesday
             // 
             Wednesday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Wednesday.DataPropertyName = "Wednesday";
             Wednesday.HeaderText = "Wednesday";
             Wednesday.Name = "Wednesday";
             // 
             // Thursday
             // 
             Thursday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Thursday.DataPropertyName = "Thursday";
             Thursday.HeaderText = "Thursday";
             Thursday.Name = "Thursday";
             // 
             // Friday
             // 
             Friday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Friday.DataPropertyName = "Friday";
             Friday.HeaderText = "Friday";
             Friday.Name = "Friday";
             // 
             // Saturday
             // 
             Saturday.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Saturday.DataPropertyName = "Saturday";
             Saturday.HeaderText = "Saturday";
             Saturday.Name = "Saturday";
             // 
@@ -366,59 +376,77 @@
             // 
             // Title
             // 
-            Title.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Title.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Title.DataPropertyName = "Title";
             Title.HeaderText = "Title";
             Title.Name = "Title";
+            Title.Width = 54;
             // 
             // Client
             // 
-            Client.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Client.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Client.DataPropertyName = "Client";
             Client.HeaderText = "Client";
             Client.Name = "Client";
+            Client.Width = 44;
             // 
             // Description
             // 
-            Description.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Description.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Description.DataPropertyName = "Description";
             Description.HeaderText = "Description";
             Description.Name = "Description";
+            Description.Width = 92;
             // 
             // Type
             // 
-            Type.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Type.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Type.DataPropertyName = "Type";
             Type.HeaderText = "Type";
             Type.Name = "Type";
+            Type.Width = 56;
             // 
             // ApptLocation
             // 
-            ApptLocation.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            ApptLocation.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            ApptLocation.DataPropertyName = "Location";
             ApptLocation.HeaderText = "Location";
             ApptLocation.Name = "ApptLocation";
+            ApptLocation.Width = 78;
             // 
             // Contact
             // 
-            Contact.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Contact.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Contact.DataPropertyName = "Contact";
             Contact.HeaderText = "Contact";
             Contact.Name = "Contact";
+            Contact.Width = 74;
             // 
             // AppointmentUrl
             // 
-            AppointmentUrl.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            AppointmentUrl.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            AppointmentUrl.DataPropertyName = "Url";
             AppointmentUrl.HeaderText = "URL";
             AppointmentUrl.Name = "AppointmentUrl";
             AppointmentUrl.Resizable = DataGridViewTriState.True;
             AppointmentUrl.SortMode = DataGridViewColumnSortMode.Automatic;
+            AppointmentUrl.Width = 53;
             // 
             // Start
             // 
-            Start.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Start.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Start.DataPropertyName = "Start";
             Start.HeaderText = "Start";
             Start.Name = "Start";
+            Start.Width = 56;
             // 
             // End
             // 
-            End.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            End.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            End.DataPropertyName = "End";
             End.HeaderText = "End";
             End.Name = "End";
+            End.Width = 52;
             // 
             // lblHeadline
             // 
@@ -430,6 +458,10 @@
             lblHeadline.Name = "lblHeadline";
             lblHeadline.Size = new Size(0, 36);
             lblHeadline.TabIndex = 3;
+            // 
+            // appointmentBindingSource
+            // 
+            appointmentBindingSource.DataSource = typeof(Models.Appointment);
             // 
             // MainDashboard
             // 
@@ -456,6 +488,7 @@
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvAppointments).EndInit();
+            ((System.ComponentModel.ISupportInitialize)appointmentBindingSource).EndInit();
             ResumeLayout(false);
         }
 
@@ -481,13 +514,7 @@
         private Label lblUserStamp;
         private Button btnLogout;
         private Panel panel5;
-        private DataGridViewTextBoxColumn Sunday;
-        private DataGridViewTextBoxColumn Monday;
-        private DataGridViewTextBoxColumn Tuesday;
-        private DataGridViewTextBoxColumn Wednesday;
-        private DataGridViewTextBoxColumn Thursday;
-        private DataGridViewTextBoxColumn Friday;
-        private DataGridViewTextBoxColumn Saturday;
+        private BindingSource appointmentBindingSource;
         private DataGridViewTextBoxColumn Title;
         private DataGridViewComboBoxColumn Client;
         private DataGridViewTextBoxColumn Description;
@@ -497,5 +524,12 @@
         private DataGridViewLinkColumn AppointmentUrl;
         private DataGridViewTextBoxColumn Start;
         private DataGridViewTextBoxColumn End;
+        private DataGridViewTextBoxColumn Sunday;
+        private DataGridViewTextBoxColumn Monday;
+        private DataGridViewTextBoxColumn Tuesday;
+        private DataGridViewTextBoxColumn Wednesday;
+        private DataGridViewTextBoxColumn Thursday;
+        private DataGridViewTextBoxColumn Friday;
+        private DataGridViewTextBoxColumn Saturday;
     }
 }

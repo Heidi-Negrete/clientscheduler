@@ -8,6 +8,7 @@ namespace heidischwartz_c969
 {
     internal static class UserContext
     {
-        static public string? Name {get; set;} 
+        static public string? Name {get; set;}
+        static public int UserId { get; set; } = 0;
     }
 }

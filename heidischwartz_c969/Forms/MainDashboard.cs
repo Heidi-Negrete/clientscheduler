@@ -27,10 +27,12 @@ namespace heidischwartz_c969.Forms
         public SchedulerService Scheduler {  get; set; }
         private DashboardPresenter _dashboardPresenter;
         private ErrorProvider _errorProvider;
-        public List<string> Reports { get; set; }
-        public List<Appointment> Appointments { get; set; }
-        public string[] WeekDays { get; set; }
-        public List<Customer> Clients { get; set; }
+        public List<string> Reports { get; set; } = new List<string>();
+        // Today's Appointments
+        public List<Appointment> Appointments { get; set; } = new List<Appointment>();
+        // This Week's Appointments
+        public string[] WeekDays { get; set; } // watch
+        public List<Customer> Clients { get; set; } = new List<Customer>();
         public DateTime dateTime { get; set; }
         public string Username { get => this.lblUserStamp.Text; set => lblUserStamp.Text = value; }
         public string LoginTime { get => this.lblLoginStamp.Text; set => lblLoginStamp.Text = value; }
@@ -41,23 +43,29 @@ namespace heidischwartz_c969.Forms
         {
             InitializeComponent();
             _logger = logger;
-            _dashboardPresenter = new DashboardPresenter(this, _logger);
             _errorProvider = new ErrorProvider();
             Scheduler = scheduler;
             lblLoginStamp.Text = "Logged in at \n" + DateTime.Now.ToString();
-            lblUserStamp.Text = UserContext.Name;   
+            lblUserStamp.Text = UserContext.Name;
+            _dashboardPresenter = new DashboardPresenter(this, _logger);
         }
 
-        // bind data to the dgv and the available reports to the combobox
         public void BindData()
         {
             cbReports.Items.Add(Reports);
 
+            dgvAppointments.AutoGenerateColumns = false;
             var AppointmentBindingList = new BindingList<Appointment>(Appointments);
             dgvAppointments.DataSource = AppointmentBindingList;
-            var WeekDaysBindingList = new BindingList<string>(WeekDays);
-            dgvWeekView.DataSource = WeekDays;
-            // lblHeadline.Text "User, you have 3 appointment/s today"
+
+
+            // TODO setup week view
+            //var WeekDaysBindingList = new BindingList<string>(WeekDays);
+            //dgvWeekView.DataSource = WeekDays;
+
+            // TODO add combobox of reports
+
+            lblHeadline.Text = $"{UserContext.Name}, you have {Appointments.Count} appointment{(Appointments.Count == 1 ? String.Empty : 's')} today";
         }
 
         private void btnAddAppt_Clicked(object sender, EventArgs e)
@@ -84,7 +92,7 @@ namespace heidischwartz_c969.Forms
 
         private void btnManageClients_Clicked(object sender, EventArgs e)
         {
-            // show new Client form
+            // TODO new client/manage client form
             throw new NotImplementedException();
         }
 
@@ -95,7 +103,7 @@ namespace heidischwartz_c969.Forms
                 MessageBox.Show("Please select a report format.");
                 return;
             }
-            // Include name of report in args
+            // TODO Include name of report in args
             ReportRequested?.Invoke(this, EventArgs.Empty);
         }
 

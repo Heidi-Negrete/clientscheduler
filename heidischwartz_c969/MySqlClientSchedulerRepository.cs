@@ -19,14 +19,27 @@ namespace heidischwartz_c969
         }
 
         // RETURNS APPOINTMENTS IN UTC
-        public List<Appointment> GetAppointments(int userId)
+        public List<Appointment> GetAppointments(int userId, DateTime startDate, DateTime endDate)
         {
-            // 
-            return _context.Appointments
-                .Where(appointment => appointment.UserId == userId)
-                .OrderBy(appointment => appointment.Start)
-                // NOTE NEED TO MAKE SHURE USER ID BEING SET IN USERCONTEXT
-                .ToList();
+            // todo constrain results within start and end date.
+
+            // TEMP HARDCODED DATA for testing.
+            List<Appointment> appointments = new List<Appointment>();
+            Appointment appointment = new Appointment();
+            appointment.AppointmentId = 1;
+            appointment.CustomerId = 1;
+            appointment.UserId = userId;
+            appointment.Start = DateTime.Now.AddMinutes(-20);
+            appointment.End = DateTime.Now.AddMinutes(30);
+            appointment.Description = "SOJIOEJ AMAZING";
+            appointments.Add(appointment);
+            return appointments;
+
+
+            //return _context.Appointments
+            //    .Where(appointment => appointment.UserId == userId)
+            //    .OrderBy(appointment => appointment.Start)
+            //    .ToList();
         }
 
         public void AddAppointment(Appointment appointment)
