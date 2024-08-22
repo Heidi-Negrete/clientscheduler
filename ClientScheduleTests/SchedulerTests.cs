@@ -16,7 +16,8 @@ namespace ClientScheduleTests
 
         public SchedulerTests()
         {
-            _sut = new SchedulerService(_repository);          
+            _sut = new SchedulerService(_repository);      
+            
         }
 
         [Fact]
@@ -25,21 +26,24 @@ namespace ClientScheduleTests
             // Arrange
             int userId = 1;
             List<Appointment> appointments = new List<Appointment>();
-            Appointment appointment = new Appointment();
             DateTime dateTimeUTC = DateTime.UtcNow;
             DateTime dateTimeLocal = dateTimeUTC.ToLocalTime();
+
+            // mockup appointments
+            Appointment appointment = new Appointment();
             appointment.AppointmentId = 1;
             appointment.CustomerId = 1;
             appointment.UserId = userId;
-            appointment.Start = dateTimeUTC;
-            appointment.End = dateTimeUTC.AddMinutes(30);
+            appointment.Start = DateTime.UtcNow.AddMinutes(-20);
+            appointment.End = DateTime.UtcNow.AddMinutes(30);
+            appointment.Description = "SOJIOEJ AMAZING";
             appointments.Add(appointment);
-            _repository.GetAppointments(1).Returns(appointments);
+            _repository.GetAppointments(1, dateTimeLocal, dateTimeLocal.AddMonths(1).AddTicks(-1)).ReturnsForAnyArgs(appointments); // tell substitute to return a value for a call
 
             // Act
-            var appointmentResults = _sut.GetAppointments(userId);
+            var appointmentResults = _sut.GetAppointments(userId, dateTimeLocal);
             // Assert
-            Assert.Equal(appointments[0].Start, dateTimeLocal);
+            Assert.Equal(appointmentResults[0].Start.Kind, dateTimeLocal.Kind);
 
         }
 
@@ -47,12 +51,12 @@ namespace ClientScheduleTests
         public void GetAppointments_ShouldReturnEmptyListIfNoneFound()
         {
             // Arrange
-            _repository.GetAppointments(1).Returns(new List<Appointment>());
+            _repository.GetAppointments(1, DateTime.Now, DateTime.Now.AddDays(1)).ReturnsForAnyArgs(new List<Appointment>());
             List<Appointment> appointments;
             List<Appointment> expected = new List<Appointment>();
 
             // Act
-            appointments = _sut.GetAppointments(1);
+            appointments = _sut.GetAppointments(1, DateTime.Now);
 
             // Assert
             Assert.Equal(appointments, expected);
