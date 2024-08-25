@@ -10,10 +10,9 @@ namespace heidischwartz_c969
 {
     public class SchedulerService : ISchedulerService
     {
-        // use an IClientSchedulerRepository instance to retrieve things needed from db
         private readonly IClientSchedulerRepository _repository;
 
-        // cache appointments
+        // cache appointments every session
         private List<Appointment> _appointments = new List<Appointment>();
 
         public SchedulerService(IClientSchedulerRepository repository)
@@ -24,20 +23,19 @@ namespace heidischwartz_c969
 
         public bool Login(string username, string password)
         {
-            // hardcoded for assessment, would validate against values from repository
+            // hardcoded for assessment, irl would validate against values from repository
             UserContext.Name = "test";
             UserContext.UserId = 1;
             if (username == "test" &&  password == "test") return true;
             return false;
         }
 
-        public List<Appointment> GetAppointments(int userId)
+        public List<Appointment> GetAppointments(int userId, DateTime today)
         {
-            // request appointments from repository in UTC time, based on filter constraints
-            // filters and constrains within month of current date so that it does not pull ALL apts (ex 10 years worth)
+            // request appointments from repository based on filter constraints to return all apts within month of current date so that it does not pull ALL apts (ex 10 years worth)
             // cache results in _appointments
 
-            DateTime today = DateTime.Now;
+            // using local time to set the constraints
             DateTime firstDate = new DateTime(today.Year, today.Month, 1); // set to first day of this month
             DateTime lastDate = firstDate.AddMonths(1).AddTicks(-1); // set to last day of this month
             
@@ -54,9 +52,19 @@ namespace heidischwartz_c969
                 lastDate = lastDate.AddDays(7);
             } 
             
-            _appointments = _repository.GetAppointments(userId, firstDate.ToUniversalTime(), lastDate.ToUniversalTime());
+            // dates converted to utc before requesting from repo
+            // TODO if this is called a second time (e.g after new Date picked on calendar), it should not overwrite cache!
+            //if (_appointments.Count == 0)
+            //{
+                _appointments = _repository.GetAppointments(userId, firstDate.ToUniversalTime(), lastDate.ToUniversalTime());
+            //}
+            //else
+            //{
+                // just use the ids from these appointments ugh :< poco? projection? new type inline?
+                //var newAppointments = _repository.UpdateCache(userId, _appointments);
+            //}
             
-            // convert appts to local time
+            // convert apts back to local time before returning to presenter
             foreach (Appointment appointment in _appointments)
             {
                 appointment.Start = appointment.Start.ToLocalTime();
@@ -65,36 +73,54 @@ namespace heidischwartz_c969
             return _appointments;
         }
 
-        public List<Appointment> GetTodaysAppointment()
+        public List<Appointment> GetTodaysAppointment(Appointment? appointment)
         {
-            // return local todays appts
-            if (_appointments == null)
+            if (_appointments.Count == 0)
                 return new List<Appointment>();
+
+            // FIX THIS ISN't DAY OF MONTH
+            int today = DateTime.Now.Day;
+            
+            if (appointment != null)
+            {
+                today = appointment.Start.Day;
+            }
+            
             var todaysAppointments = _appointments
-                .Where(a => a.Start.Day == DateTime.Now.Day)
+                .Where(a => a.Start.Day == today)
                 .ToList();
             return todaysAppointments;
         }
 
-        public List<Appointment>? GetWeekAppointments()
+        public Week GetWeekAppointments(Appointment? appointment)
         {
-            if (_appointments == null) return null;
-
+            if (_appointments.Count == 0) return new Week();
+            
             DateTime today = DateTime.Now;
-            if (today.DayOfWeek == DayOfWeek.Sunday)
+            
+            if (appointment != null)
             {
-                // return today and the next 6 days
+                today = appointment.Start;
             }
-            else
+
+            // actually consider using recursion to solve this problem.
+            while (today.DayOfWeek != DayOfWeek.Sunday)
             {
-                // check yesterday is sunday?
-                // actually consider using recursion to solve this problem.
+                today = today.AddDays(-1);
             }
-           
-            return _appointments;
-            // TODO
-            // rethink format on data for the dgv, currently making no sense
-            // also return null or empty list if no appointments?
+            var weekAppointments = _appointments
+                .Where(a => a.Start.Day >= today.Day && a.Start.Day <= today.AddDays(6).Day)
+                .ToList();
+            
+            Week week = new Week();
+            week.Sunday = weekAppointments.Where(a => a.Start.Day == today.Day).ToList();
+            week.Tuesday = weekAppointments.Where(a => a.Start.Day == today.AddDays(1).Day).ToList();
+            week.Wednesday = weekAppointments.Where(a => a.Start.Day == today.AddDays(2).Day).ToList();
+            week.Thursday = weekAppointments.Where(a => a.Start.Day == today.AddDays(3).Day).ToList();
+            week.Friday = weekAppointments.Where(a => a.Start.Day == today.AddDays(4).Day).ToList();
+            week.Saturday = weekAppointments.Where(a => a.Start.Day == today.AddDays(5).Day).ToList();
+
+            return week;
         }
 
         public bool AddAppointment(Appointment appointment)

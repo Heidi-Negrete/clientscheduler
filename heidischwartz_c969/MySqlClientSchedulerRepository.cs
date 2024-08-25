@@ -16,30 +16,33 @@ namespace heidischwartz_c969
         {
             if (context == null) throw new ArgumentNullException("context");
             _context = context;
+
+            // TEST DATA
+            //Appointment appointment = new Appointment();
+            //appointment.CustomerId = 1;
+            //appointment.UserId = 1;
+            //appointment.Start = DateTime.UtcNow.AddMinutes(-20);
+            //appointment.End = DateTime.UtcNow.AddMinutes(30);
+            //appointment.Title = "IO Repos";
+            //appointment.Description = "SOJIOEJ AMAZING";
+            //appointment.Location = "";
+            //appointment.Contact = "google@google.com";
+            //appointment.Type = "Consultation";
+            //appointment.Url = "zoom.com";
+            //appointment.CreateDate = DateTime.UtcNow;
+            //appointment.CreatedBy = "test";
+            //appointment.LastUpdate = DateTime.UtcNow;
+            //appointment.LastUpdateBy = "test";
+            //AddAppointment(appointment);
         }
 
-        // RETURNS APPOINTMENTS IN UTC
+        // Receives and returns apts in UTC
         public List<Appointment> GetAppointments(int userId, DateTime startDate, DateTime endDate)
         {
-            // todo constrain results within start and end date.
-
-            // TEMP HARDCODED DATA for testing.
-            List<Appointment> appointments = new List<Appointment>();
-            Appointment appointment = new Appointment();
-            appointment.AppointmentId = 1;
-            appointment.CustomerId = 1;
-            appointment.UserId = userId;
-            appointment.Start = DateTime.Now.AddMinutes(-20);
-            appointment.End = DateTime.Now.AddMinutes(30);
-            appointment.Description = "SOJIOEJ AMAZING";
-            appointments.Add(appointment);
-            return appointments;
-
-
-            //return _context.Appointments
-            //    .Where(appointment => appointment.UserId == userId)
-            //    .OrderBy(appointment => appointment.Start)
-            //    .ToList();
+            return _context.Appointments
+                .Where(appointment => appointment.UserId == userId && appointment.Start >= startDate && appointment.End <= endDate)
+                .OrderBy(appointment => appointment.Start)
+                .ToList();
         }
 
         public void AddAppointment(Appointment appointment)
@@ -83,6 +86,7 @@ namespace heidischwartz_c969
             _context.SaveChanges();
         }
 
+        // REPORTS
         // the number of appointment types by month
         //	the schedule for each user
         // one additional report of your choice Clients by active / inactive?

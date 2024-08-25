@@ -2,9 +2,11 @@
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using heidischwartz_c969.Models;
 
 namespace heidischwartz_c969.Presenters
 {
@@ -37,35 +39,55 @@ namespace heidischwartz_c969.Presenters
             List<string> availableReports = new List<string>{"Appointment Types", "Full Schedule", "Customer Activity" };
             _view.Reports.AddRange(availableReports);
             // fix this with new implementation.
-            _view.Scheduler.GetAppointments(UserContext.UserId);
-            _view.Appointments = _view.Scheduler.GetTodaysAppointment();
-            // _view.WeekDays = reconsider.
-            // get Appointments, get days and set that data in view -> then call _view.BindData();
-            // Weekdays is a list of strings each formatted w date and List of Appointments based on that time zone formating done in scheduler :/
+            _view.Scheduler.GetAppointments(UserContext.UserId, DateTime.Now);
+            
+            // This is a hack to get the week to update when the date changes
+            Appointment tempApp = new Appointment();
+            tempApp.Start = DateTime.Now;
+            
+            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(tempApp));
+
+            _view.WeekDays.Add(_view.Scheduler.GetWeekAppointments(tempApp));
             _view.BindData();
         }
-    private void AddAppointment(object sender, EventArgs e)
+    private void AddAppointment(object sender, AppointmentEventArgs e)
         {
-            // update _view.Appointments
-            throw new NotImplementedException();
+            // Currently doesn't make any sense since this is not how appt added and no appontment is passed into args
+            _view.Scheduler.AddAppointment(e.Appointment);
+            _view.Appointments.Clear();
+            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(e.Appointment));
+            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(e.Appointment);
+            _view.UpdateBindingSources();
         }
 
-        private void ChangeAppointment(object sender, EventArgs e)
+        private void ChangeAppointment(object sender, AppointmentEventArgs e)
         {
-            // update _view.Appointments
-            throw new NotImplementedException();
+            _view.Scheduler.UpdateAppointment(e.Appointment);
+            _view.Appointments.Clear();
+            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(e.Appointment));
+            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(e.Appointment);
+            _view.UpdateBindingSources();
         }
 
-        private void DeleteAppointment(object sender, EventArgs e)
+        private void DeleteAppointment(object sender, AppointmentEventArgs e)
         {
-            // update _view.Appointments
-            throw new NotImplementedException();
+            _view.Scheduler.DeleteAppointment(e.Appointment);
+            _view.Appointments.Clear();
+            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(e.Appointment));
+            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(e.Appointment);
+            _view.UpdateBindingSources();
         }
 
-        private void ChangeCurrentDate(object sender, EventArgs e)
+        private void ChangeCurrentDate(object sender, DateRangeEventArgs e)
         {
-            // update _view.Appointments
-            throw new NotImplementedException();
+            _view.Scheduler.GetAppointments(UserContext.UserId, e.Start);
+            // This is a hack to get the week to update when the date changes
+            Appointment tempApp = new Appointment();
+            tempApp.Start = e.Start;
+            _view.Appointments.Clear();
+            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(tempApp));
+            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(tempApp);
+            _view.UpdateBindingSources();
         }
 
         private void Logout(object sender, EventArgs e)

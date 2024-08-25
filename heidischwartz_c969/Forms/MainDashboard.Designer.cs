@@ -240,6 +240,7 @@
             dgvWeekView.Location = new Point(234, 0);
             dgvWeekView.MultiSelect = false;
             dgvWeekView.Name = "dgvWeekView";
+            dgvWeekView.ReadOnly = true;
             dgvWeekView.RowHeadersVisible = false;
             dgvWeekView.RowHeadersWidth = 40;
             dgvWeekView.RowTemplate.Height = 25;
@@ -255,6 +256,7 @@
             Sunday.DataPropertyName = "Sunday";
             Sunday.HeaderText = "Sunday";
             Sunday.Name = "Sunday";
+            Sunday.ReadOnly = true;
             // 
             // Monday
             // 
@@ -262,6 +264,7 @@
             Monday.DataPropertyName = "Monday";
             Monday.HeaderText = "Monday";
             Monday.Name = "Monday";
+            Monday.ReadOnly = true;
             // 
             // Tuesday
             // 
@@ -269,6 +272,7 @@
             Tuesday.DataPropertyName = "Tuesday";
             Tuesday.HeaderText = "Tuesday";
             Tuesday.Name = "Tuesday";
+            Tuesday.ReadOnly = true;
             // 
             // Wednesday
             // 
@@ -276,6 +280,7 @@
             Wednesday.DataPropertyName = "Wednesday";
             Wednesday.HeaderText = "Wednesday";
             Wednesday.Name = "Wednesday";
+            Wednesday.ReadOnly = true;
             // 
             // Thursday
             // 
@@ -283,6 +288,7 @@
             Thursday.DataPropertyName = "Thursday";
             Thursday.HeaderText = "Thursday";
             Thursday.Name = "Thursday";
+            Thursday.ReadOnly = true;
             // 
             // Friday
             // 
@@ -290,6 +296,7 @@
             Friday.DataPropertyName = "Friday";
             Friday.HeaderText = "Friday";
             Friday.Name = "Friday";
+            Friday.ReadOnly = true;
             // 
             // Saturday
             // 
@@ -297,6 +304,7 @@
             Saturday.DataPropertyName = "Saturday";
             Saturday.HeaderText = "Saturday";
             Saturday.Name = "Saturday";
+            Saturday.ReadOnly = true;
             // 
             // panel5
             // 
@@ -376,77 +384,68 @@
             // 
             // Title
             // 
-            Title.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Title.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Title.DataPropertyName = "Title";
             Title.HeaderText = "Title";
             Title.Name = "Title";
-            Title.Width = 54;
             // 
             // Client
             // 
-            Client.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Client.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Client.DataPropertyName = "Client";
             Client.HeaderText = "Client";
             Client.Name = "Client";
-            Client.Width = 44;
             // 
             // Description
             // 
-            Description.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Description.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Description.DataPropertyName = "Description";
             Description.HeaderText = "Description";
             Description.Name = "Description";
-            Description.Width = 92;
             // 
             // Type
             // 
-            Type.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Type.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Type.DataPropertyName = "Type";
             Type.HeaderText = "Type";
             Type.Name = "Type";
-            Type.Width = 56;
             // 
             // ApptLocation
             // 
-            ApptLocation.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            ApptLocation.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             ApptLocation.DataPropertyName = "Location";
             ApptLocation.HeaderText = "Location";
             ApptLocation.Name = "ApptLocation";
-            ApptLocation.Width = 78;
             // 
             // Contact
             // 
-            Contact.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Contact.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Contact.DataPropertyName = "Contact";
             Contact.HeaderText = "Contact";
             Contact.Name = "Contact";
-            Contact.Width = 74;
             // 
             // AppointmentUrl
             // 
-            AppointmentUrl.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            AppointmentUrl.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             AppointmentUrl.DataPropertyName = "Url";
             AppointmentUrl.HeaderText = "URL";
             AppointmentUrl.Name = "AppointmentUrl";
             AppointmentUrl.Resizable = DataGridViewTriState.True;
             AppointmentUrl.SortMode = DataGridViewColumnSortMode.Automatic;
-            AppointmentUrl.Width = 53;
             // 
             // Start
             // 
-            Start.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            Start.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             Start.DataPropertyName = "Start";
             Start.HeaderText = "Start";
             Start.Name = "Start";
-            Start.Width = 56;
             // 
             // End
             // 
-            End.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            End.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             End.DataPropertyName = "End";
             End.HeaderText = "End";
             End.Name = "End";
-            End.Width = 52;
             // 
             // lblHeadline
             // 
@@ -515,6 +514,13 @@
         private Button btnLogout;
         private Panel panel5;
         private BindingSource appointmentBindingSource;
+        private DataGridViewTextBoxColumn Sunday;
+        private DataGridViewTextBoxColumn Monday;
+        private DataGridViewTextBoxColumn Tuesday;
+        private DataGridViewTextBoxColumn Wednesday;
+        private DataGridViewTextBoxColumn Thursday;
+        private DataGridViewTextBoxColumn Friday;
+        private DataGridViewTextBoxColumn Saturday;
         private DataGridViewTextBoxColumn Title;
         private DataGridViewComboBoxColumn Client;
         private DataGridViewTextBoxColumn Description;
@@ -524,12 +530,5 @@
         private DataGridViewLinkColumn AppointmentUrl;
         private DataGridViewTextBoxColumn Start;
         private DataGridViewTextBoxColumn End;
-        private DataGridViewTextBoxColumn Sunday;
-        private DataGridViewTextBoxColumn Monday;
-        private DataGridViewTextBoxColumn Tuesday;
-        private DataGridViewTextBoxColumn Wednesday;
-        private DataGridViewTextBoxColumn Thursday;
-        private DataGridViewTextBoxColumn Friday;
-        private DataGridViewTextBoxColumn Saturday;
     }
 }
