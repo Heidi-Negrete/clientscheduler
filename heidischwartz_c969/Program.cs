@@ -27,6 +27,7 @@ namespace heidischwartz_c969
                 var repository = new MySqlClientSchedulerRepository(new ClientSchedulerContext());
                 var schedulerService = new SchedulerService(repository);
                 Application.Run(new Login(schedulerService, Log.Logger));
+                //Application.Run(new AddAppointment(schedulerService));
             }
 
         }

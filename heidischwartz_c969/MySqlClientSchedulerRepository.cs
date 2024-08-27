@@ -16,24 +16,6 @@ namespace heidischwartz_c969
         {
             if (context == null) throw new ArgumentNullException("context");
             _context = context;
-
-            // TEST DATA
-            //Appointment appointment = new Appointment();
-            //appointment.CustomerId = 1;
-            //appointment.UserId = 1;
-            //appointment.Start = DateTime.UtcNow.AddMinutes(-20);
-            //appointment.End = DateTime.UtcNow.AddMinutes(30);
-            //appointment.Title = "IO Repos";
-            //appointment.Description = "SOJIOEJ AMAZING";
-            //appointment.Location = "";
-            //appointment.Contact = "google@google.com";
-            //appointment.Type = "Consultation";
-            //appointment.Url = "zoom.com";
-            //appointment.CreateDate = DateTime.UtcNow;
-            //appointment.CreatedBy = "test";
-            //appointment.LastUpdate = DateTime.UtcNow;
-            //appointment.LastUpdateBy = "test";
-            //AddAppointment(appointment);
         }
 
         // Receives and returns apts in UTC
@@ -45,22 +27,48 @@ namespace heidischwartz_c969
                 .ToList();
         }
 
-        public void AddAppointment(Appointment appointment)
+        public void AddAppointment(string userName, Appointment appointment)
         {
-            _context.Appointments.Add(appointment);
-            _context.SaveChanges();
+            appointment.CreateDate = DateTime.UtcNow;
+            appointment.CreatedBy = userName;
+
+            try
+            {
+                _context.Appointments.Add(appointment);
+                _context.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public void DeleteAppointment(Appointment appointment)
         {
-            _context.Appointments.Remove(appointment);
-            _context.SaveChanges();
+            try
+            {
+                _context.Appointments.Remove(appointment);
+                _context.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
-        public void UpdateAppointment(Appointment appointment)
+        public void UpdateAppointment(string userName, Appointment appointment)
         {
-            _context.Appointments.Update(appointment);
-            _context.SaveChanges();
+            appointment.LastUpdate = DateTime.UtcNow;
+            appointment.LastUpdateBy = userName;
+            try
+            {
+                _context.Appointments.Update(appointment);
+                _context.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public List<Customer> GetCustomers()

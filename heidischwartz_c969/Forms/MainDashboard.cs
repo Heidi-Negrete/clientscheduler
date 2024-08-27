@@ -20,21 +20,25 @@ namespace heidischwartz_c969.Forms
         public event EventHandler<AppointmentEventArgs> AppointmentChanged;
         public event EventHandler<AppointmentEventArgs> AppointmentDeleted;
         public event EventHandler<DateRangeEventArgs> DateChanged;
+        public event EventHandler<WeekDayChangedEventArgs> WeekDayChanged;
         public event EventHandler<EventArgs> LoggedOut;
         public event EventHandler<EventArgs> ReportRequested;
         public event EventHandler<EventArgs> ClientsManaged;
 
-        public SchedulerService Scheduler {  get; set; }
+        public SchedulerService Scheduler { get; set; }
+
         private DashboardPresenter _dashboardPresenter;
         private ErrorProvider _errorProvider;
         public List<string> Reports { get; set; } = new List<string>();
-        
+
         // Today's Appointments
         public List<Appointment> Appointments { get; set; } = new List<Appointment>();
 
         // This Week's Appointments
-        public List<Week> WeekDays { get; set; } = new List<Week>();
-        
+        public List<WeekSummaryView> WeekSummary { get; set; } = new List<WeekSummaryView>();
+
+        public List<Customer> Customers { get; set; } = new List<Customer>();
+
         public List<Customer> Clients { get; set; } = new List<Customer>();
         public DateTime dateTime { get; set; }
         public string Username { get => this.lblUserStamp.Text; set => lblUserStamp.Text = value; }
@@ -51,16 +55,18 @@ namespace heidischwartz_c969.Forms
             lblLoginStamp.Text = "Logged in at \n" + DateTime.Now.ToString();
             lblUserStamp.Text = UserContext.Name;
             _dashboardPresenter = new DashboardPresenter(this, _logger);
+            cbReports.DropDownStyle = ComboBoxStyle.DropDownList;
         }
 
         public void BindData()
         {
-            cbReports.Items.Add(Reports);
 
             dgvAppointments.AutoGenerateColumns = false;
             dgvWeekView.AutoGenerateColumns = false;
+            dgvWeekView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dgvWeekView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
-            // TODO add combobox of reports
+            cbReports.DataSource = Reports;
 
             UpdateBindingSources();
         }
@@ -136,8 +142,13 @@ namespace heidischwartz_c969.Forms
             dgvAppointments.DataSource = null;
             dgvAppointments.DataSource = Appointments;
             dgvWeekView.DataSource = null;
-            dgvWeekView.DataSource = WeekDays;
+            dgvWeekView.DataSource = WeekSummary;
             lblHeadline.Text = $"{UserContext.Name}, you have {Appointments.Count} appointment{(Appointments.Count == 1 ? String.Empty : 's')} today";
-}
+        }
+
+        private void dgvWeekView_DayClicked(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            WeekDayChanged?.Invoke(this, new WeekDayChangedEventArgs(e.ColumnIndex));
+        }
     }
 }

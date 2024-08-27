@@ -11,9 +11,9 @@ namespace heidischwartz_c969
     {
         public ClientSchedulerContext _context { get; } // WHAT 
         public List<Appointment> GetAppointments(int userId, DateTime startDate, DateTime endDate);
-        public void UpdateAppointment(Appointment appointment);
+        public void UpdateAppointment(string userName, Appointment appointment);
         public void DeleteAppointment(Appointment appointment);
-        public void AddAppointment(Appointment appointment);
+        public void AddAppointment(string userName, Appointment appointment);
         public List<Customer> GetCustomers();
         public void AddCustomer(Customer customer);
         public void DeleteCustomer(Customer customer);

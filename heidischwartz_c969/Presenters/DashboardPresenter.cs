@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using heidischwartz_c969.Models;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace heidischwartz_c969.Presenters
 {
@@ -15,6 +16,8 @@ namespace heidischwartz_c969.Presenters
         private readonly IDashboardView _view;
 
         private readonly ILogger _logger;
+
+        private Week week;
 
         public DashboardPresenter(IDashboardView view, ILogger logger)
         {
@@ -27,66 +30,86 @@ namespace heidischwartz_c969.Presenters
             _view.LoggedOut += Logout;
             _view.ReportRequested += GenerateReport;
             _view.ClientsManaged += ManageClients;
+            _view.WeekDayChanged += ChangeWeekDay;
 
-            PopulateView();
-            
+            week = _view.Scheduler.getSchedule(DateTime.Now);
+
+            _view.Appointments = week.Today;
+            _view.WeekSummary = week.WeekSummary;
+
+            // report options hardcoded for now
+            List<string> availableReports = new List<string> { "Appointment Types", "Full Schedule", "Customer Activity" };
+            _view.Reports.AddRange(availableReports);
+
+            _view.BindData();
+
             // also start sleeps thread to check if any appointment time within 15 minutes
         }
 
-        private void PopulateView()
+        private void ChangeWeekDay(object? sender, WeekDayChangedEventArgs e)
         {
-            // report options hardcoded for now
-            List<string> availableReports = new List<string>{"Appointment Types", "Full Schedule", "Customer Activity" };
-            _view.Reports.AddRange(availableReports);
-            // fix this with new implementation.
-            _view.Scheduler.GetAppointments(UserContext.UserId, DateTime.Now);
-            
-            // This is a hack to get the week to update when the date changes
-            Appointment tempApp = new Appointment();
-            tempApp.Start = DateTime.Now;
-            
-            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(tempApp));
+            switch (e.weekDayIndex)
+            {
+                case 0:
+                    week.Today = week.Sunday;
+                    break;
+                case 1:
+                    week.Today = week.Monday;
+                    break;
+                case 2:
+                    week.Today = week.Tuesday;
+                    break;
+                case 3:
+                    week.Today = week.Wednesday;
+                    break;
+                case 4:
+                    week.Today = week.Thursday;
+                    break;
+                case 5:
+                    week.Today = week.Friday;
+                    break;
+                case 6:
+                    week.Today = week.Saturday;
+                    break;
+                default: break;
+            }
+            _view.Appointments = week.Today;
+            _view.UpdateBindingSources();
 
-            _view.WeekDays.Add(_view.Scheduler.GetWeekAppointments(tempApp));
-            _view.BindData();
         }
     private void AddAppointment(object sender, AppointmentEventArgs e)
         {
-            // Currently doesn't make any sense since this is not how appt added and no appontment is passed into args
             _view.Scheduler.AddAppointment(e.Appointment);
-            _view.Appointments.Clear();
-            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(e.Appointment));
-            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(e.Appointment);
+            week = _view.Scheduler.getSchedule(week.TargetDate);
+            _view.Appointments = week.Today;
+            _view.WeekSummary = week.WeekSummary;
             _view.UpdateBindingSources();
         }
 
         private void ChangeAppointment(object sender, AppointmentEventArgs e)
         {
+
             _view.Scheduler.UpdateAppointment(e.Appointment);
-            _view.Appointments.Clear();
-            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(e.Appointment));
-            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(e.Appointment);
+            week = _view.Scheduler.getSchedule(week.TargetDate);
+            _view.Appointments = week.Today;
+            _view.WeekSummary = week.WeekSummary;
             _view.UpdateBindingSources();
         }
 
         private void DeleteAppointment(object sender, AppointmentEventArgs e)
         {
             _view.Scheduler.DeleteAppointment(e.Appointment);
-            _view.Appointments.Clear();
-            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(e.Appointment));
-            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(e.Appointment);
+            week = _view.Scheduler.getSchedule(week.TargetDate);
+            _view.Appointments = week.Today;
+            _view.WeekSummary = week.WeekSummary;
             _view.UpdateBindingSources();
         }
 
         private void ChangeCurrentDate(object sender, DateRangeEventArgs e)
         {
-            _view.Scheduler.GetAppointments(UserContext.UserId, e.Start);
-            // This is a hack to get the week to update when the date changes
-            Appointment tempApp = new Appointment();
-            tempApp.Start = e.Start;
-            _view.Appointments.Clear();
-            _view.Appointments.AddRange(_view.Scheduler.GetTodaysAppointment(tempApp));
-            _view.WeekDays[0] = _view.Scheduler.GetWeekAppointments(tempApp);
+            week = _view.Scheduler.getSchedule(e.Start);
+            _view.Appointments = week.Today;
+            _view.WeekSummary = week.WeekSummary;
             _view.UpdateBindingSources();
         }
 
@@ -103,6 +126,8 @@ namespace heidischwartz_c969.Presenters
             UserContext.Name = null;
 
             _view.Logout();
+
+            // TODO add try/catch on add/update/delete apt, log error and display error in view
         }
 
         private void GenerateReport(object sender, EventArgs e)
@@ -118,12 +143,14 @@ namespace heidischwartz_c969.Presenters
         public bool IsWithinBusinessHours(DateTime start, DateTime end)
         {
             // TODO between 9AM - 5pm Monday - Friday, Eastern Standard Time
+            // this shouldn't be necessary here, available start times will be given to form for validation
             return false;
         }
 
         public bool IsOverlappingAppointment(DateTime start)
         {
             // TODO Making an assumption that 1hr appointment slots, get appointments from db sorted by start date/time and use binary search to check?
+            // again handled elsewhere
             return false;
         }
 

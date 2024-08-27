@@ -248,6 +248,7 @@
             dgvWeekView.SelectionMode = DataGridViewSelectionMode.CellSelect;
             dgvWeekView.Size = new Size(517, 326);
             dgvWeekView.TabIndex = 14;
+            dgvWeekView.CellMouseClick += dgvWeekView_DayClicked;
             dgvWeekView.DataBindingComplete += dgvWeekView_DataBindingComplete;
             // 
             // Sunday
@@ -514,13 +515,6 @@
         private Button btnLogout;
         private Panel panel5;
         private BindingSource appointmentBindingSource;
-        private DataGridViewTextBoxColumn Sunday;
-        private DataGridViewTextBoxColumn Monday;
-        private DataGridViewTextBoxColumn Tuesday;
-        private DataGridViewTextBoxColumn Wednesday;
-        private DataGridViewTextBoxColumn Thursday;
-        private DataGridViewTextBoxColumn Friday;
-        private DataGridViewTextBoxColumn Saturday;
         private DataGridViewTextBoxColumn Title;
         private DataGridViewComboBoxColumn Client;
         private DataGridViewTextBoxColumn Description;
@@ -530,5 +524,12 @@
         private DataGridViewLinkColumn AppointmentUrl;
         private DataGridViewTextBoxColumn Start;
         private DataGridViewTextBoxColumn End;
+        private DataGridViewTextBoxColumn Sunday;
+        private DataGridViewTextBoxColumn Monday;
+        private DataGridViewTextBoxColumn Tuesday;
+        private DataGridViewTextBoxColumn Wednesday;
+        private DataGridViewTextBoxColumn Thursday;
+        private DataGridViewTextBoxColumn Friday;
+        private DataGridViewTextBoxColumn Saturday;
     }
 }
