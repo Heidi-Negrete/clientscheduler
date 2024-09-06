@@ -23,6 +23,8 @@ namespace heidischwartz_c969.Views
 
         public void UpdateBindingSources();
 
+        public void ShowError(string message);
+
         public void BindData();
         public List<Appointment> Appointments { get; set; }
         public List<WeekSummaryView> WeekSummary { get; set; }

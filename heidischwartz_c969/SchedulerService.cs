@@ -129,5 +129,53 @@ namespace heidischwartz_c969
                 throw;
             }
         }
+
+        public List<Customer> getCustomers()
+        {
+           try
+            {
+                return _repository.GetCustomers();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void addCustomer(Customer customer)
+        {
+            try
+            {
+                _repository.AddCustomer(customer);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void deleteCustomer(Customer customer)
+        {
+            try
+            {
+                _repository.DeleteCustomer(customer);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void updateCustomer(Customer customer)
+        {
+            try
+            {
+                _repository.UpdateCustomer(customer);
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

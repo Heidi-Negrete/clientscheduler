@@ -29,13 +29,14 @@ namespace heidischwartz_c969.Presenters
             _view.DateChanged += ChangeCurrentDate;
             _view.LoggedOut += Logout;
             _view.ReportRequested += GenerateReport;
-            _view.ClientsManaged += ManageClients;
+            //_view.ClientsManaged += ManageClients;
             _view.WeekDayChanged += ChangeWeekDay;
 
             week = _view.Scheduler.getSchedule(DateTime.Now);
 
             _view.Appointments = week.Today;
             _view.WeekSummary = week.WeekSummary;
+            _view.Clients = _view.Scheduler.getCustomers();
 
             // report options hardcoded for now
             List<string> availableReports = new List<string> { "Appointment Types", "Full Schedule", "Customer Activity" };
@@ -77,32 +78,62 @@ namespace heidischwartz_c969.Presenters
             _view.UpdateBindingSources();
 
         }
-    private void AddAppointment(object sender, AppointmentEventArgs e)
+
+        // TODO add try/catch on add/update/delete apt, log error and display error in view
+
+        private void AddAppointment(object sender, AppointmentEventArgs e)
         {
-            _view.Scheduler.AddAppointment(e.Appointment);
-            week = _view.Scheduler.getSchedule(week.TargetDate);
-            _view.Appointments = week.Today;
-            _view.WeekSummary = week.WeekSummary;
-            _view.UpdateBindingSources();
+            try
+            {
+                _view.Scheduler.AddAppointment(e.Appointment);
+                week = _view.Scheduler.getSchedule(week.TargetDate);
+                _view.Appointments = week.Today;
+                _view.WeekSummary = week.WeekSummary;
+                _view.UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error adding appointment");
+                _view.ShowError("Error adding appointment");
+            }
+
         }
 
         private void ChangeAppointment(object sender, AppointmentEventArgs e)
         {
 
-            _view.Scheduler.UpdateAppointment(e.Appointment);
-            week = _view.Scheduler.getSchedule(week.TargetDate);
-            _view.Appointments = week.Today;
-            _view.WeekSummary = week.WeekSummary;
-            _view.UpdateBindingSources();
+            try
+            {
+                _view.Scheduler.UpdateAppointment(e.Appointment);
+                week = _view.Scheduler.getSchedule(week.TargetDate);
+                _view.Appointments = week.Today;
+                _view.WeekSummary = week.WeekSummary;
+                _view.UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+
+                _logger.Error(ex, "Error updating appointment");
+                _view.ShowError("Error updating appointment");
+            }
         }
 
         private void DeleteAppointment(object sender, AppointmentEventArgs e)
         {
-            _view.Scheduler.DeleteAppointment(e.Appointment);
-            week = _view.Scheduler.getSchedule(week.TargetDate);
-            _view.Appointments = week.Today;
-            _view.WeekSummary = week.WeekSummary;
-            _view.UpdateBindingSources();
+            try
+            {
+                _view.Scheduler.DeleteAppointment(e.Appointment);
+                week = _view.Scheduler.getSchedule(week.TargetDate);
+                _view.Appointments = week.Today;
+                _view.WeekSummary = week.WeekSummary;
+                _view.UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+
+                _logger.Error(ex, "Error deleting appointment.");
+                _view.ShowError("Error deleting appointment.");
+            }
         }
 
         private void ChangeCurrentDate(object sender, DateRangeEventArgs e)
@@ -121,13 +152,11 @@ namespace heidischwartz_c969.Presenters
             _view.DateChanged -= ChangeCurrentDate;
             _view.LoggedOut -= Logout;
             _view.ReportRequested -= GenerateReport;
-            _view.ClientsManaged -= ManageClients;
+            //_view.ClientsManaged -= ManageClients;
 
             UserContext.Name = null;
 
             _view.Logout();
-
-            // TODO add try/catch on add/update/delete apt, log error and display error in view
         }
 
         private void GenerateReport(object sender, EventArgs e)
@@ -135,10 +164,10 @@ namespace heidischwartz_c969.Presenters
             throw new NotImplementedException();
         }
 
-        private void ManageClients(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        //private void ManageClients(object sender, EventArgs e)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public bool IsWithinBusinessHours(DateTime start, DateTime end)
         {

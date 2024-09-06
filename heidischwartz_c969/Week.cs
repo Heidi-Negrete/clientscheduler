@@ -28,7 +28,7 @@ namespace heidischwartz_c969
             StringBuilder sb = new StringBuilder();
             foreach (var appointment in day)
             {
-                sb.AppendFormat("{0} {1}\r\n", appointment.Title,
+                sb.AppendFormat("\r\n{0} {1}\r\n\r\n", appointment.Title,
                 appointment.Start.ToString("hh:mm"));
             }
             return sb.ToString();

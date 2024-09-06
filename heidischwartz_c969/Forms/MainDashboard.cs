@@ -34,10 +34,10 @@ namespace heidischwartz_c969.Forms
         // Today's Appointments
         public List<Appointment> Appointments { get; set; } = new List<Appointment>();
 
+        private IAddAppointment? AddAppointmentForm = null;
+
         // This Week's Appointments
         public List<WeekSummaryView> WeekSummary { get; set; } = new List<WeekSummaryView>();
-
-        public List<Customer> Customers { get; set; } = new List<Customer>();
 
         public List<Customer> Clients { get; set; } = new List<Customer>();
         public DateTime dateTime { get; set; }
@@ -63,6 +63,7 @@ namespace heidischwartz_c969.Forms
 
             dgvAppointments.AutoGenerateColumns = false;
             dgvWeekView.AutoGenerateColumns = false;
+            dgvWeekView.ShowCellToolTips = false;
             dgvWeekView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dgvWeekView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
@@ -71,10 +72,32 @@ namespace heidischwartz_c969.Forms
             UpdateBindingSources();
         }
 
+        public void ShowError(string message)
+        {
+            if (AddAppointmentForm != null)
+            {
+                AddAppointmentForm.ShowError(message);
+            }
+            else
+            {
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void btnAddAppt_Clicked(object sender, EventArgs e)
         {
-            // TODO Add Apt form w all necessary validation
-            AppointmentAdded?.Invoke(this, new AppointmentEventArgs(new Appointment()));
+            var AddAptForm = new AddAppointment(Clients);
+            AddAppointmentForm = (IAddAppointment)AddAptForm;
+            AddAptForm.Show();
+
+            // prevent user from interacting with dashboard while adding appointment
+            this.Enabled = false; 
+            AddAptForm.FormClosed += (s, args) => this.Enabled = true;
+            AddAppointmentForm = null;
+
+
+            // dont think need this event
+            //AppointmentAdded?.Invoke(this, new AppointmentEventArgs(new Appointment()));
         }
 
         private void btnDeleteApt_Clicked(object sender, EventArgs e)
@@ -84,7 +107,11 @@ namespace heidischwartz_c969.Forms
                 MessageBox.Show("Please select an appointment to delete.");
                 return;
             }
-            AppointmentDeleted?.Invoke(this, new AppointmentEventArgs((Appointment)dgvAppointments.CurrentRow.DataBoundItem));
+            DialogResult result = MessageBox.Show("Are you sure you want to delete this appointment?", "Delete Appointment", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                AppointmentDeleted?.Invoke(this, new AppointmentEventArgs((Appointment)dgvAppointments.CurrentRow.DataBoundItem));
+            }     
         }
         private void dgvAppointments_Changed(object sender, DataGridViewCellEventArgs e)
         {
@@ -93,8 +120,12 @@ namespace heidischwartz_c969.Forms
 
         private void btnManageClients_Clicked(object sender, EventArgs e)
         {
-            // TODO new client/manage client form
-            throw new NotImplementedException();
+            var manageClientsForm = new ManageClients(Scheduler);
+            manageClientsForm.Show();
+
+            // prevent user from interacting with dashboard while managing clients
+            this.Enabled = false;
+            manageClientsForm.FormClosed += (s, args) => this.Enabled = true;
         }
 
         private void btnGenerateReport_Clicked(object sender, EventArgs e)

@@ -73,25 +73,82 @@ namespace heidischwartz_c969
 
         public List<Customer> GetCustomers()
         {
-            return _context.Customers.ToList();
+            try
+            {
+                return _context.Customers.ToList();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public void AddCustomer(Customer customer)
         {
-            _context.Customers.Add(customer);
-            _context.SaveChanges();
+            customer.CreateDate = DateTime.UtcNow;
+            customer.CreatedBy = UserContext.Name;
+            customer.Address.City.CreateDate = DateTime.UtcNow;
+            customer.Address.City.CreatedBy = UserContext.Name;
+            customer.Address.CreateDate = DateTime.UtcNow;
+            customer.Address.CreatedBy = UserContext.Name;
+
+            customer.LastUpdate = DateTime.UtcNow;
+            customer.LastUpdateBy = UserContext.Name;
+            customer.Address.LastUpdate = DateTime.UtcNow;
+            customer.Address.LastUpdateBy = UserContext.Name;
+            customer.Address.City.LastUpdate = DateTime.UtcNow;
+            customer.Address.City.LastUpdateBy = UserContext.Name;
+            try
+            {
+                _context.Customers.Add(customer);
+                _context.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public void DeleteCustomer(Customer customer)
         {
-            _context.Customers.Remove(customer);
-            _context.SaveChanges();
+            try
+            {
+                _context.Customers.Remove(customer);
+                _context.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public void UpdateCustomer(Customer customer)
         {
-            _context.Customers.Update(customer);
-            _context.SaveChanges();
+            customer.LastUpdate = DateTime.UtcNow;
+            customer.LastUpdateBy = UserContext.Name;
+            if (customer.Address.CreateDate == null)
+            {
+                customer.Address.CreateDate = DateTime.UtcNow;
+                customer.Address.CreatedBy = UserContext.Name;
+            }
+            customer.Address.LastUpdate = DateTime.UtcNow;
+            customer.Address.LastUpdateBy = UserContext.Name;
+            customer.Address.City.LastUpdate = DateTime.UtcNow;
+            customer.Address.City.LastUpdateBy = UserContext.Name;
+            if (customer.Address.City.CreateDate == null)
+            {
+                customer.Address.City.CreateDate = DateTime.UtcNow;
+                customer.Address.City.CreatedBy = UserContext.Name;
+            }
+            try
+            {
+                _context.Customers.Update(customer);
+                _context.SaveChanges();
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         // REPORTS
