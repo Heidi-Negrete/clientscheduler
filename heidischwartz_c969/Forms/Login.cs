@@ -1,16 +1,7 @@
 ﻿using heidischwartz_c969.Presenters;
 using heidischwartz_c969.Views;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Serilog;
+using System.Globalization;
 
 namespace heidischwartz_c969.Forms
 {
@@ -18,14 +9,16 @@ namespace heidischwartz_c969.Forms
     {
         private LoginPresenter _loginPresenter;
         private ErrorProvider _errorProvider;
+        private ILogger _logger;
         public SchedulerService Scheduler { get; set; }
         public event EventHandler<EventArgs> LoginAttempted;
+        private string location 
+        { 
+            get => this.lblLocation.Text;
+            set => lblLocation.Text = value;
+        }
         string ILoginView.Username { get => this.tbUsername.Text; set => tbUsername.Text = value; }
         string ILoginView.Password { get => this.tbPassword.Text; set => tbPassword.Text = value; }
-
-        private ILogger _logger;
-
-
 
         public Login(SchedulerService schedulerService, ILogger logger)
         {
@@ -35,6 +28,25 @@ namespace heidischwartz_c969.Forms
             _logger = logger;
             _loginPresenter = new LoginPresenter(this, _logger);
             _errorProvider = new ErrorProvider();
+            location = setUpLocalization();
+        }
+
+        private string setUpLocalization()
+        {
+            string userlocation = CultureInfo.CurrentCulture.Name;
+            UserContext.Location = userlocation;
+            
+            if (userlocation == "de-DE")
+            {
+                lblLoginTitle.Text = "Einloggen auf Ihr Konto";
+                btnLogin.Text = "Anmelden";
+                lblWelcome1.Text = "Willkommen beim";
+                lblWelcome2.Text = "Client Scheduler";
+                btnForgotPassword.Text = "Passwort vergessen?";
+                lblBy.Text = "Entwickelt von";
+            }
+            
+            return userlocation;
         }
 
         private void btnExit_Click(object sender, EventArgs e)
@@ -44,26 +56,44 @@ namespace heidischwartz_c969.Forms
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(tbUsername.Text) ||
-                string.IsNullOrWhiteSpace(tbPassword.Text))
+            if (string.IsNullOrWhiteSpace(tbUsername.Text) || string.IsNullOrWhiteSpace(tbPassword.Text))
             {
-                MessageBox.Show("Please enter a username and password.");
+                if (location == "de-DE")
+                {
+                    MessageBox.Show("Bitte geben Sie Ihren Benutzernamen und Ihr Passwort ein.");
+                }
+                else
+                {
+                    MessageBox.Show("Please enter your username and password.");
+                }
                 return;
             }
             LoginAttempted?.Invoke(this, EventArgs.Empty);
         }
 
-        private void btnForgotPassword_Click(object sender, EventArgs e)
-        {
-            //hardcoded values for evaluation just for fun :)
-            MessageBox.Show("Username: test\nPassword: test");
-        }
-
         public void FailLogin()
         {
-            MessageBox.Show("Login Failed. Please check your username and password and try again.");
+            if (location == "de-DE")
+            {
+                MessageBox.Show("Benutzername oder Passwort ungültig.");
+            }
+            else
+            {
+                MessageBox.Show("Invalid username or password.");
+            }
         }
 
+        private void btnForgotPassword_Click(object sender, EventArgs e)
+        {
+            if (location == "de-DE")
+            {
+                MessageBox.Show("Benutzername: test\\nPasswort: test");
+            }
+            else
+            {
+                MessageBox.Show("Username: test\\nPassword: test");
+            }
+        }
         public void LaunchDashboard()
         {
             this.Hide();
@@ -72,7 +102,6 @@ namespace heidischwartz_c969.Forms
             Dashboard.Show();
         }
 
-        // THIS CURRENTLY DOES NOT WORK.
         private void Login_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)

@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace heidischwartz_c969.Views
 {
-    internal interface ILoginView: IView
+    internal interface ILoginView
     {
+        public SchedulerService Scheduler { get; set; }
         public event EventHandler<EventArgs> LoginAttempted;
-
         public string Username { get; set; }
         public string Password { get; set; }
         public void FailLogin();

@@ -28,23 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
-            label4 = new Label();
-            label3 = new Label();
-            label2 = new Label();
-            label1 = new Label();
-            pictureBox1 = new PictureBox();
-            panel2 = new Panel();
-            btnForgotPassword = new Button();
-            btnLogin = new Button();
-            panel4 = new Panel();
-            tbPassword = new TextBox();
-            pictureBox3 = new PictureBox();
-            panel3 = new Panel();
-            tbUsername = new TextBox();
-            pictureBox2 = new PictureBox();
-            label5 = new Label();
-            btnExit = new Button();
+            panel1 = new System.Windows.Forms.Panel();
+            label4 = new System.Windows.Forms.Label();
+            lblBy = new System.Windows.Forms.Label();
+            lblWelcome2 = new System.Windows.Forms.Label();
+            lblWelcome1 = new System.Windows.Forms.Label();
+            pictureBox1 = new System.Windows.Forms.PictureBox();
+            panel2 = new System.Windows.Forms.Panel();
+            lblLocation = new System.Windows.Forms.Label();
+            btnForgotPassword = new System.Windows.Forms.Button();
+            btnLogin = new System.Windows.Forms.Button();
+            panel4 = new System.Windows.Forms.Panel();
+            tbPassword = new System.Windows.Forms.TextBox();
+            pictureBox3 = new System.Windows.Forms.PictureBox();
+            panel3 = new System.Windows.Forms.Panel();
+            tbUsername = new System.Windows.Forms.TextBox();
+            pictureBox2 = new System.Windows.Forms.PictureBox();
+            lblLoginTitle = new System.Windows.Forms.Label();
+            btnExit = new System.Windows.Forms.Button();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panel2.SuspendLayout();
@@ -56,96 +57,104 @@
             // 
             // panel1
             // 
-            panel1.BackColor = Color.FromArgb(41, 128, 185);
+            panel1.BackColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
             panel1.Controls.Add(label4);
-            panel1.Controls.Add(label3);
-            panel1.Controls.Add(label2);
-            panel1.Controls.Add(label1);
+            panel1.Controls.Add(lblBy);
+            panel1.Controls.Add(lblWelcome2);
+            panel1.Controls.Add(lblWelcome1);
             panel1.Controls.Add(pictureBox1);
-            panel1.Dock = DockStyle.Left;
-            panel1.Location = new Point(0, 0);
+            panel1.Dock = System.Windows.Forms.DockStyle.Left;
+            panel1.Location = new System.Drawing.Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(300, 530);
+            panel1.Size = new System.Drawing.Size(300, 530);
             panel1.TabIndex = 0;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Font = new Font("Century Gothic", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label4.ForeColor = Color.White;
-            label4.Location = new Point(237, 496);
+            label4.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            label4.ForeColor = System.Drawing.Color.White;
+            label4.Location = new System.Drawing.Point(237, 496);
             label4.Name = "label4";
-            label4.Size = new Size(34, 16);
+            label4.Size = new System.Drawing.Size(34, 16);
             label4.TabIndex = 4;
             label4.Text = "Heidi";
             // 
-            // label3
+            // lblBy
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Century Gothic", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-            label3.ForeColor = Color.White;
-            label3.Location = new Point(185, 480);
-            label3.Name = "label3";
-            label3.Size = new Size(86, 16);
-            label3.TabIndex = 3;
-            label3.Text = "Developed by";
+            lblBy.AutoSize = true;
+            lblBy.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            lblBy.ForeColor = System.Drawing.Color.White;
+            lblBy.Location = new System.Drawing.Point(185, 480);
+            lblBy.Name = "lblBy";
+            lblBy.Size = new System.Drawing.Size(86, 16);
+            lblBy.TabIndex = 3;
+            lblBy.Text = "Developed by";
             // 
-            // label2
+            // lblWelcome2
             // 
-            label2.AutoSize = true;
-            label2.Font = new Font("Century Gothic", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
-            label2.ForeColor = Color.White;
-            label2.Location = new Point(93, 229);
-            label2.Name = "label2";
-            label2.Size = new Size(178, 24);
-            label2.TabIndex = 2;
-            label2.Text = "Client Scheduler";
+            lblWelcome2.AutoSize = true;
+            lblWelcome2.Font = new System.Drawing.Font("Century Gothic", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            lblWelcome2.ForeColor = System.Drawing.Color.White;
+            lblWelcome2.Location = new System.Drawing.Point(93, 229);
+            lblWelcome2.Name = "lblWelcome2";
+            lblWelcome2.Size = new System.Drawing.Size(178, 24);
+            lblWelcome2.TabIndex = 2;
+            lblWelcome2.Text = "Client Scheduler";
             // 
-            // label1
+            // lblWelcome1
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Century Gothic", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.ForeColor = Color.White;
-            label1.Location = new Point(93, 204);
-            label1.Name = "label1";
-            label1.Size = new Size(178, 24);
-            label1.TabIndex = 1;
-            label1.Text = "Welcome to the";
+            lblWelcome1.AutoSize = true;
+            lblWelcome1.Font = new System.Drawing.Font("Century Gothic", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            lblWelcome1.ForeColor = System.Drawing.Color.White;
+            lblWelcome1.Location = new System.Drawing.Point(93, 204);
+            lblWelcome1.Name = "lblWelcome1";
+            lblWelcome1.Size = new System.Drawing.Size(178, 24);
+            lblWelcome1.TabIndex = 1;
+            lblWelcome1.Text = "Welcome to the";
             // 
             // pictureBox1
             // 
-            pictureBox1.Image = Properties.Resources.clippy;
-            pictureBox1.Location = new Point(95, 40);
+            pictureBox1.Image = global::heidischwartz_c969.Properties.Resources.clippy;
+            pictureBox1.Location = new System.Drawing.Point(95, 40);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(120, 120);
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.Size = new System.Drawing.Size(120, 120);
+            pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
             // panel2
             // 
+            panel2.Controls.Add(lblLocation);
             panel2.Controls.Add(btnForgotPassword);
             panel2.Controls.Add(btnLogin);
             panel2.Controls.Add(panel4);
             panel2.Controls.Add(panel3);
-            panel2.Controls.Add(label5);
+            panel2.Controls.Add(lblLoginTitle);
             panel2.Controls.Add(btnExit);
-            panel2.Dock = DockStyle.Fill;
-            panel2.Location = new Point(300, 0);
+            panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            panel2.Location = new System.Drawing.Point(300, 0);
             panel2.Name = "panel2";
-            panel2.Size = new Size(450, 530);
+            panel2.Size = new System.Drawing.Size(450, 530);
             panel2.TabIndex = 1;
+            // 
+            // lblLocation
+            // 
+            lblLocation.Location = new System.Drawing.Point(371, 498);
+            lblLocation.Name = "lblLocation";
+            lblLocation.Size = new System.Drawing.Size(66, 13);
+            lblLocation.TabIndex = 10;
             // 
             // btnForgotPassword
             // 
-            btnForgotPassword.BackColor = SystemColors.Control;
+            btnForgotPassword.BackColor = System.Drawing.SystemColors.Control;
             btnForgotPassword.FlatAppearance.BorderSize = 0;
-            btnForgotPassword.FlatStyle = FlatStyle.Flat;
-            btnForgotPassword.Font = new Font("Century Gothic", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-            btnForgotPassword.ForeColor = Color.FromArgb(41, 128, 185);
-            btnForgotPassword.Location = new Point(169, 316);
+            btnForgotPassword.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnForgotPassword.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            btnForgotPassword.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            btnForgotPassword.Location = new System.Drawing.Point(169, 316);
             btnForgotPassword.Name = "btnForgotPassword";
-            btnForgotPassword.Size = new Size(120, 25);
+            btnForgotPassword.Size = new System.Drawing.Size(120, 25);
             btnForgotPassword.TabIndex = 9;
             btnForgotPassword.Text = "Forgot Password?";
             btnForgotPassword.UseVisualStyleBackColor = false;
@@ -153,12 +162,12 @@
             // 
             // btnLogin
             // 
-            btnLogin.BackColor = Color.FromArgb(41, 128, 185);
-            btnLogin.FlatStyle = FlatStyle.Flat;
-            btnLogin.Font = new Font("Century Gothic", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-            btnLogin.Location = new Point(15, 310);
+            btnLogin.BackColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnLogin.Font = new System.Drawing.Font("Century Gothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            btnLogin.Location = new System.Drawing.Point(15, 310);
             btnLogin.Name = "btnLogin";
-            btnLogin.Size = new Size(148, 35);
+            btnLogin.Size = new System.Drawing.Size(148, 35);
             btnLogin.TabIndex = 8;
             btnLogin.Text = "LOGIN";
             btnLogin.UseVisualStyleBackColor = false;
@@ -166,86 +175,86 @@
             // 
             // panel4
             // 
-            panel4.BackColor = Color.White;
+            panel4.BackColor = System.Drawing.Color.White;
             panel4.Controls.Add(tbPassword);
             panel4.Controls.Add(pictureBox3);
-            panel4.Location = new Point(0, 246);
+            panel4.Location = new System.Drawing.Point(0, 246);
             panel4.Name = "panel4";
-            panel4.Size = new Size(450, 45);
+            panel4.Size = new System.Drawing.Size(450, 45);
             panel4.TabIndex = 7;
             // 
             // tbPassword
             // 
-            tbPassword.BorderStyle = BorderStyle.None;
-            tbPassword.Font = new Font("Century Gothic", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            tbPassword.ForeColor = Color.FromArgb(41, 128, 185);
-            tbPassword.Location = new Point(55, 11);
+            tbPassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            tbPassword.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            tbPassword.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            tbPassword.Location = new System.Drawing.Point(55, 11);
             tbPassword.Name = "tbPassword";
-            tbPassword.Size = new Size(370, 20);
+            tbPassword.Size = new System.Drawing.Size(370, 20);
             tbPassword.TabIndex = 7;
             tbPassword.UseSystemPasswordChar = true;
             // 
             // pictureBox3
             // 
-            pictureBox3.Image = Properties.Resources.padlock_login;
-            pictureBox3.Location = new Point(12, 10);
+            pictureBox3.Image = global::heidischwartz_c969.Properties.Resources.padlock_login;
+            pictureBox3.Location = new System.Drawing.Point(12, 10);
             pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(24, 24);
-            pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox3.Size = new System.Drawing.Size(24, 24);
+            pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             pictureBox3.TabIndex = 6;
             pictureBox3.TabStop = false;
             // 
             // panel3
             // 
-            panel3.BackColor = Color.White;
+            panel3.BackColor = System.Drawing.Color.White;
             panel3.Controls.Add(tbUsername);
             panel3.Controls.Add(pictureBox2);
-            panel3.Location = new Point(0, 185);
+            panel3.Location = new System.Drawing.Point(0, 185);
             panel3.Name = "panel3";
-            panel3.Size = new Size(450, 45);
+            panel3.Size = new System.Drawing.Size(450, 45);
             panel3.TabIndex = 6;
             // 
             // tbUsername
             // 
-            tbUsername.BorderStyle = BorderStyle.None;
-            tbUsername.Font = new Font("Century Gothic", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            tbUsername.ForeColor = Color.FromArgb(41, 128, 185);
-            tbUsername.Location = new Point(55, 11);
+            tbUsername.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            tbUsername.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            tbUsername.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            tbUsername.Location = new System.Drawing.Point(55, 11);
             tbUsername.Name = "tbUsername";
-            tbUsername.Size = new Size(370, 20);
+            tbUsername.Size = new System.Drawing.Size(370, 20);
             tbUsername.TabIndex = 6;
             // 
             // pictureBox2
             // 
-            pictureBox2.Image = Properties.Resources.person_login2;
-            pictureBox2.Location = new Point(15, 11);
+            pictureBox2.Image = global::heidischwartz_c969.Properties.Resources.person_login2;
+            pictureBox2.Location = new System.Drawing.Point(15, 11);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(24, 24);
-            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox2.Size = new System.Drawing.Size(24, 24);
+            pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             pictureBox2.TabIndex = 5;
             pictureBox2.TabStop = false;
             // 
-            // label5
+            // lblLoginTitle
             // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Century Gothic", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
-            label5.ForeColor = Color.FromArgb(41, 128, 185);
-            label5.Location = new Point(38, 135);
-            label5.Name = "label5";
-            label5.Size = new Size(236, 24);
-            label5.TabIndex = 5;
-            label5.Text = "Login to your account";
+            lblLoginTitle.AutoSize = true;
+            lblLoginTitle.Font = new System.Drawing.Font("Century Gothic", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            lblLoginTitle.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            lblLoginTitle.Location = new System.Drawing.Point(38, 135);
+            lblLoginTitle.Name = "lblLoginTitle";
+            lblLoginTitle.Size = new System.Drawing.Size(236, 24);
+            lblLoginTitle.TabIndex = 5;
+            lblLoginTitle.Text = "Login to your account";
             // 
             // btnExit
             // 
-            btnExit.Cursor = Cursors.Hand;
+            btnExit.Cursor = System.Windows.Forms.Cursors.Hand;
             btnExit.FlatAppearance.BorderSize = 0;
-            btnExit.FlatStyle = FlatStyle.Flat;
-            btnExit.Font = new Font("Verdana", 15.75F, FontStyle.Bold, GraphicsUnit.Point);
-            btnExit.ForeColor = Color.FromArgb(41, 128, 185);
-            btnExit.Location = new Point(410, 0);
+            btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnExit.Font = new System.Drawing.Font("Verdana", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            btnExit.ForeColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            btnExit.Location = new System.Drawing.Point(410, 0);
             btnExit.Name = "btnExit";
-            btnExit.Size = new Size(40, 40);
+            btnExit.Size = new System.Drawing.Size(40, 40);
             btnExit.TabIndex = 0;
             btnExit.Text = "X";
             btnExit.UseVisualStyleBackColor = true;
@@ -253,15 +262,14 @@
             // 
             // Login
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(750, 530);
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(750, 530);
             ControlBox = false;
             Controls.Add(panel2);
             Controls.Add(panel1);
-            FormBorderStyle = FormBorderStyle.None;
-            Name = "Login";
-            StartPosition = FormStartPosition.CenterScreen;
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             Text = "Login";
             KeyDown += Login_KeyDown;
             panel1.ResumeLayout(false);
@@ -278,17 +286,19 @@
             ResumeLayout(false);
         }
 
+        private System.Windows.Forms.Label lblLocation;
+
         #endregion
 
         private Panel panel1;
         private PictureBox pictureBox1;
-        private Panel panel2;
-        private Label label2;
-        private Label label1;
+        private System.Windows.Forms.Panel panel2;
+        private Label lblWelcome2;
+        private Label lblWelcome1;
         private Label label4;
-        private Label label3;
+        private Label lblBy;
         private Button btnExit;
-        private Label label5;
+        private Label lblLoginTitle;
         private Panel panel4;
         private PictureBox pictureBox3;
         private Panel panel3;
