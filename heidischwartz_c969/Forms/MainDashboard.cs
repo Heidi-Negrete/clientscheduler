@@ -92,14 +92,13 @@ namespace heidischwartz_c969.Forms
         private void btnAddAppt_Clicked(object sender, EventArgs e)
         {
             var AddAptForm = new AddAppointment(_repository, Clients, null);
-            AddAppointmentForm = (IAddAppointment)AddAptForm;
             AddAptForm.Show();
 
             // prevent user from interacting with dashboard while adding appointment
             AddAptForm.FormClosed += (s, args) => 
             {
                 this.Enabled = true;
-                AddAppointmentForm = null;
+                ManageAppointments();
             };
         }
         
@@ -197,7 +196,6 @@ namespace heidischwartz_c969.Forms
         private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
         {
             dateSelected = monthCalendar.SelectionRange.Start;
-            Console.WriteLine(dateSelected);
             UpdateBindingSources();
         }
 
@@ -266,6 +264,20 @@ namespace heidischwartz_c969.Forms
         {
             try
             {
+                await UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error updating client");
+                ShowError("Error updating client");
+            }
+        }
+
+        private async void ManageAppointments()
+        {
+            try
+            {
+                Appointments = await _repository.GetDaysAppointments(dateSelected);
                 await UpdateBindingSources();
             }
             catch (Exception ex)

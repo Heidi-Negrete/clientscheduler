@@ -154,74 +154,6 @@ namespace heidischwartz_c969
             
             return ConvertAppointmentsToLocalTime(appointments);
         }
-
-        public async Task<Week> GetSchedule(DateTime date)
-        {
-            // When appt added, updated, or get appointmentsbycustomerid, need to convert to local time
-            //  appointment.Start = appointment.Start.ToUniversalTime();
-            //  appointment.End = appointment.End.ToUniversalTime();
-            // REFACTOR THIS FUNCTIONALITY OUT
-            
-            Week thisWeek = new Week();
-
-            thisWeek.TargetDate = date;
-
-            DateTime firstDayOfWeek = new DateTime(date.Year, date.Month, date.Day);
-
-            while (firstDayOfWeek.DayOfWeek != DayOfWeek.Sunday)
-            {
-                firstDayOfWeek = firstDayOfWeek.AddDays(-1);
-            }
-
-            // get appointments from repository
-            List<Appointment> appointments = await GetAppointments(UserContext.UserId, firstDayOfWeek.ToUniversalTime(), firstDayOfWeek.AddDays(6).ToUniversalTime());
-
-            // convert apts back to local time before assigning to week, which is local time
-            foreach (Appointment appointment in appointments)
-            {
-                appointment.Start = appointment.Start.ToLocalTime();
-                appointment.End = appointment.End.ToLocalTime();
-            }
-
-            thisWeek.Sunday = appointments.Where(a => a.Start.Day == firstDayOfWeek.Day).ToList();
-            thisWeek.Tuesday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(1).Day).ToList();
-            thisWeek.Wednesday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(2).Day).ToList();
-            thisWeek.Thursday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(3).Day).ToList();
-            thisWeek.Friday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(4).Day).ToList();
-            thisWeek.Saturday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(5).Day).ToList();
-
-            switch (date.DayOfWeek)
-            {
-                case DayOfWeek.Sunday:
-                    thisWeek.Today = thisWeek.Sunday;
-                    break;
-                case DayOfWeek.Monday:
-                    thisWeek.Today = thisWeek.Monday;
-                    break;
-                case DayOfWeek.Tuesday:
-                    thisWeek.Today = thisWeek.Tuesday;
-                    break;
-                case DayOfWeek.Wednesday:
-                    thisWeek.Today = thisWeek.Wednesday;
-                    break;
-                case DayOfWeek.Thursday:
-                    thisWeek.Today = thisWeek.Thursday;
-                    break;
-                case DayOfWeek.Friday:
-                    thisWeek.Today = thisWeek.Friday;
-                    break;
-                case DayOfWeek.Saturday:
-                    thisWeek.Today = thisWeek.Saturday;
-                    break;
-                default:
-                    break;
-            }
-
-            thisWeek.CreateWeekSummary();
-
-            return thisWeek;
-        }
-
                 
         // APPOINTMENTS
         public async Task<List<Appointment>> GetAppointmentsByCustomerId(int customerId)
@@ -278,6 +210,8 @@ namespace heidischwartz_c969
 
         public async Task AddAppointment(Appointment appointment)
         {
+            appointment.Start = TimeZoneInfo.ConvertTimeToUtc(appointment.Start);
+            appointment.End = appointment.Start.AddMinutes(30);
             appointment.CreateDate = DateTime.UtcNow;
             appointment.CreatedBy = UserContext.Name;
 
@@ -309,8 +243,11 @@ namespace heidischwartz_c969
 
         public async Task UpdateAppointment(Appointment appointment)
         {
+            appointment.Start = TimeZoneInfo.ConvertTimeToUtc(appointment.Start);
+            appointment.End = appointment.Start.AddMinutes(30);
             appointment.LastUpdate = DateTime.UtcNow;
             appointment.LastUpdateBy = UserContext.Name;
+
             try
             {
                 _context.Appointments.Update(appointment);
@@ -328,11 +265,18 @@ namespace heidischwartz_c969
         {
             try
             {
-                return await _context.Customers
+                var customers = await _context.Customers
                     .Include(c => c.Address)
                     .ThenInclude(a => a.City)
                     .ThenInclude(ci => ci.Country)
                     .ToListAsync();
+                
+                foreach (var customer in customers)
+                {
+                    customer.Active = await _context.Appointments.AnyAsync(a => a.CustomerId == customer.CustomerId);
+                }
+
+                return customers;
             }
             catch (Exception ex)
             {
@@ -490,33 +434,55 @@ namespace heidischwartz_c969
             }
         }
         
-        // GET AVAILABLE TIMES (the time is unavailable 30 min after appointment start time & the duration of the appointment must be within the business hours of  9 am. to 5pm. Monday - Friday Eastern Standard Time.
+        // GET AVAILABLE TIMES and return list of these times.
+        // we need to ensure that the available times are between 9:00 AM and 4:30 PM EST. If the date is today, the available times should start from the nearest half-hour to the current time and end at 4:30 PM EST. If the date is in the past, there should be no available times.
         public async Task<List<DateTime>> GetAvailableTimes(DateTime date)
         {
-            // convert date parameter to utc
+            // Convert date parameter to UTC
             DateTime startDate = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
             List<Appointment> appointments = await GetAppointments(UserContext.UserId, startDate, startDate.AddDays(1));
             List<DateTime> availableTimes = new List<DateTime>();
 
-            // get all the times between 9 am and 5 pm EST
+            // Get all the times between 9:00 AM and 4:30 PM EST
             TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             DateTime estStart = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 9, 0, 0), estZone);
-            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 17, 0, 0), estZone);
+            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 16, 30, 0), estZone);
 
-            for (DateTime time = estStart; time < estEnd; time = time.AddMinutes(30))
+            DateTime nowEst = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estZone);
+            if (date.Date == nowEst.Date)
             {
-                availableTimes.Add(time);
+                // If the date is today, start from the nearest half-hour to the current time
+                DateTime nearestHalfHour = nowEst.Minute < 30
+                    ? new DateTime(nowEst.Year, nowEst.Month, nowEst.Day, nowEst.Hour, 30, 0)
+                    : new DateTime(nowEst.Year, nowEst.Month, nowEst.Day, nowEst.Hour + 1, 0, 0);
+
+                estStart = TimeZoneInfo.ConvertTimeToUtc(nearestHalfHour, estZone);
+            }
+            else if (date.Date < nowEst.Date)
+            {
+                // If the date is in the past, return no available times
+                return availableTimes;
             }
 
-            // remove the times that are already booked
+            for (DateTime time = estStart; time <= estEnd; time = time.AddMinutes(30))
+            {
+                availableTimes.Add(TimeZoneInfo.ConvertTimeFromUtc(time, estZone));
+            }
+
+            // Remove the times that are already booked
             foreach (Appointment appointment in appointments)
             {
-                availableTimes.Remove(appointment.Start.ToUniversalTime());
-                availableTimes.Remove(appointment.End.ToUniversalTime());
+                availableTimes.Remove(appointment.Start.ToLocalTime());
             }
+
             return availableTimes;
         }
         
+        // REPORTS
+        // the number of appointment types by month
+        //	the schedule for each user
+        // one additional report of your choice Clients by active / inactive?
+        // TO DO STARTING HERE.
 
         // HELPER METHODS
         // There is invalid data in some of the existing test data in the database.
@@ -572,10 +538,4 @@ namespace heidischwartz_c969
         }
     }
 }
-        // REPORTS
-        // the number of appointment types by month
-        //	the schedule for each user
-        // one additional report of your choice Clients by active / inactive?
-
-        // thoughts for after basic implementation: caching to reduce load on db?
-        // Get new appointments after deleting (put logic in presenter)
+        

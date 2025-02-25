@@ -215,7 +215,6 @@ namespace heidischwartz_c969.Forms
             tbPostalCode.Enabled = true;
             tbPhone.Enabled = true;
 
-
         }
         
         private void btnDelete_Clicked(object sender, EventArgs e)
