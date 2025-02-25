@@ -33,6 +33,7 @@ namespace heidischwartz_c969.Forms
             {
                 selectedAppointment = appointment;
                 PopulateFormFields();
+                mcAppointmentDate.SelectionStart = selectedAppointment.Start;
                 btnAdd.Text = "Update";
             }
             else
@@ -221,6 +222,16 @@ namespace heidischwartz_c969.Forms
             else
             {
                 errorProvider.SetError(cmbCustomers, string.Empty);
+            }
+            
+            if (cmbStartTimes.SelectedIndex == -1)
+            {
+                errorProvider.SetError(cmbStartTimes, "Please select a start time.");
+                isValid = false;
+            }
+            else
+            {
+                errorProvider.SetError(cmbStartTimes, string.Empty);
             }
 
             return isValid;
