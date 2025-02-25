@@ -15,6 +15,10 @@ namespace heidischwartz_c969.Forms
     public partial class AddAppointment : Form, IAddAppointment
     {
         private ErrorProvider errorProvider = new ErrorProvider();
+        private readonly IClientSchedulerRepository _repository;
+        
+        private List<DateTime> _availableTimes = new List<DateTime>();
+        private DateTime selectedDate = DateTime.Now;
 
         // TODO get this list on construction from Dashboard Presenter?
         private readonly List<Customer> _clients;
@@ -24,14 +28,15 @@ namespace heidischwartz_c969.Forms
 
         // private readonly AddAppointmentPresenter _addAppointmentPresenter;
 
-        public Appointment appointment = new Appointment();
+        public Appointment selectedAppointment = new Appointment();
         public Customer client = new Customer();
         public DateTime dateSelection = DateTime.Now;
 
 
-        public AddAppointment(List<Customer> clients)
+        public AddAppointment(IClientSchedulerRepository repository, List<Customer> clients, Appointment? appointment = null)
         {
             InitializeComponent();
+            _repository = repository;
             _clients = clients;
 
             // set cmbCustomers max dropdown to count of Clients :o?
@@ -41,10 +46,50 @@ namespace heidischwartz_c969.Forms
             cmbCustomers.DisplayMember = "CustomerName";
             cmbCustomers.DropDownStyle = ComboBoxStyle.DropDownList;
 
+            
+            if (appointment != null)
+            {
+                selectedAppointment = appointment;
+                PopulateFormFields();
+                btnAdd.Text = "Update";
+            }
+            else
+            {
+                btnAdd.Text = "Add";
+            }
+
             btnAdd.Enabled = false;
-           // _scheduler = scheduler;
+            
+            btnAdd.Enabled = false;
+            GetAvailableTimes();
 
-
+        }
+        
+        private async Task GetAvailableTimes()
+        {
+            // TODO get available times from repo
+            var availableTimes = await _repository.GetAvailableTimes(selectedDate);
+            // if list is empty then show error no available time for the date selected. 
+            if (availableTimes.Count == 0)
+            {
+                ShowError("No available times for the selected date.");
+                return;
+            }
+            _availableTimes = availableTimes;
+            cmbStartTimes.DataSource = _availableTimes;
+            cmbStartTimes.DropDownStyle = ComboBoxStyle.DropDownList;
+        }
+        
+        private void PopulateFormFields()
+        {
+            tbTitle.Text = selectedAppointment?.Title ?? "";
+            tbDescription.Text = selectedAppointment?.Description ?? "";
+            tbLocation.Text = selectedAppointment?.Location ?? "";
+            tbContact.Text = selectedAppointment?.Contact ?? "";
+            tbType.Text = selectedAppointment?.Type ?? "";
+            tbUrl.Text = selectedAppointment?.Url ?? "";
+            cmbCustomers.SelectedItem = _clients.FirstOrDefault(c => c.CustomerId == selectedAppointment.CustomerId);
+            // Set other fields as necessary
         }
 
         public void ShowError(string message)
@@ -93,10 +138,8 @@ namespace heidischwartz_c969.Forms
 
         private void mcAppointmentCalendar_DateChanged(object sender, DateRangeEventArgs e)
         {
-            // scheduler get all appointments on selecte date w. this client and
-            // establish available appointment times (30 min intervals & within the business hours see requirements.)
-            // scheduler return ? and assign it to the cmbStartTimes
-            // WHAT IF THERE ARE NO AVAILABLE APPOINTMENT TIMES? (add to start of list like Client so that option 0)
+            selectedDate = e.Start;
+            GetAvailableTimes();
         }
 
         private void btnAdd_Clicked(object sender, EventArgs e)
@@ -126,67 +169,67 @@ namespace heidischwartz_c969.Forms
             // Validate title
             if (string.IsNullOrWhiteSpace(tbTitle.Text))
             {
-                appointment.Title = "";
+                selectedAppointment.Title = "";
             }
             else
             {
                 // optional? any business logic here
-                appointment.Title = tbTitle.Text;
+                selectedAppointment.Title = tbTitle.Text;
             }
 
             // Validate description
             if (string.IsNullOrWhiteSpace(tbDescription.Text))
             {
-                appointment.Description = "";
+                selectedAppointment.Description = "";
             }
             else
             {
                 // optional? any business logic here
-                appointment.Description = tbDescription.Text;
+                selectedAppointment.Description = tbDescription.Text;
             }
 
             // Validate Location
             if (string.IsNullOrWhiteSpace(tbLocation.Text))
             {
-                appointment.Location = "";
+                selectedAppointment.Location = "";
             }
             else
             {
                 // optional? any business logic here
-                appointment.Location = tbLocation.Text;
+                selectedAppointment.Location = tbLocation.Text;
             }
 
             // Validate Contact
             if (string.IsNullOrWhiteSpace(tbContact.Text))
             {
-                appointment.Contact = "";
+                selectedAppointment.Contact = "";
             }
             else
             {
                 // optional? any business logic here
-                appointment.Contact = tbContact.Text;
+                selectedAppointment.Contact = tbContact.Text;
             }
 
             // Validate Type
             if (string.IsNullOrWhiteSpace(tbType.Text))
             {
-                appointment.Type = "";
+                selectedAppointment.Type = "";
             }
             else
             {
                 // optional? any business logic here
-                appointment.Type = tbType.Text;
+                selectedAppointment.Type = tbType.Text;
             }
 
             // Validate Url
             if (string.IsNullOrWhiteSpace(tbTitle.Text))
             {
-                appointment.Title = "";
+                selectedAppointment.Title = "";
             }
             else
             {
                 // optional? any business logic here
-                appointment.Title = tbTitle.Text;
+                selectedAppointment.Title = tbTitle.Text;
             }
 
             // Validate Client ComboBox

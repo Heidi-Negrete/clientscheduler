@@ -37,6 +37,7 @@ namespace heidischwartz_c969.Forms
             
             lblLoginStamp.Text = "Logged in at \n" + DateTime.Now.ToString();
             lblUserStamp.Text = UserContext.Name;
+            lblAppointmentsClient.Visible = false;
             
             cbReports.DropDownStyle = ComboBoxStyle.DropDownList;
             // report options hardcoded for now
@@ -61,7 +62,12 @@ namespace heidischwartz_c969.Forms
 
         public void BindData()
         {
-            dgvAppointments.AutoGenerateColumns = false;
+    
+            dgvAppointments.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvAppointments.ReadOnly = true;
+            
+           dgvAppointments.AutoGenerateColumns = false;
+
             cbReports.DataSource = Reports;
             UpdateBindingSources();
         }
@@ -85,7 +91,7 @@ namespace heidischwartz_c969.Forms
         // Launch Add Appointment Form
         private void btnAddAppt_Clicked(object sender, EventArgs e)
         {
-            var AddAptForm = new AddAppointment(Clients);
+            var AddAptForm = new AddAppointment(_repository, Clients, null);
             AddAppointmentForm = (IAddAppointment)AddAptForm;
             AddAptForm.Show();
 
@@ -110,12 +116,38 @@ namespace heidischwartz_c969.Forms
                 DeleteAppointment((Appointment)dgvAppointments.CurrentRow.DataBoundItem);
             }     
         }
+        
+        private void btnEditAppointment_Clicked(object sender, EventArgs e)
+        {
+            if (dgvAppointments.CurrentCell == null || !dgvAppointments.CurrentCell.Selected)
+            {
+                MessageBox.Show("Please select an appointment to change.");
+                return;
+            }
+            
+            var selectedAppointment = (Appointment)dgvAppointments.CurrentRow.DataBoundItem;
+            //var relevantClient = Clients.FirstOrDefault(c => c.CustomerId == selectedAppointment.CustomerId);
+            var ChangeAptForm = new AddAppointment(_repository, Clients, selectedAppointment);
+            ChangeAptForm.Show();
+
+            // prevent user from interacting with dashboard while changing appointment
+            ChangeAptForm.FormClosed += (s, args) =>
+            {
+                this.Enabled = true;
+                UpdateBindingSources();
+            };
+        }
+        
         private void dgvAppointments_Changed(object sender, DataGridViewCellEventArgs e)
         {
-            if (dgvAppointments.CurrentRow?.DataBoundItem is Appointment appointment)
+            if (dgvAppointments.CurrentCell == null || !dgvAppointments.CurrentCell.Selected)
             {
-                ChangeAppointment(appointment);
+                return;
             }
+            var selectedAppointment = (Appointment)dgvAppointments.CurrentRow.DataBoundItem;
+            var relevantClient = Clients.FirstOrDefault(c => c.CustomerId == selectedAppointment.CustomerId);
+            lblAppointmentsClient.Text = $"Client: {relevantClient.CustomerName}";
+            lblAppointmentsClient.Visible = true;
         }
 
         private void btnManageClients_Clicked(object sender, EventArgs e)

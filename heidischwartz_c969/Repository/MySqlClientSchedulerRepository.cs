@@ -489,6 +489,34 @@ namespace heidischwartz_c969
                 throw new Exception("Error updating country", ex);
             }
         }
+        
+        // GET AVAILABLE TIMES (the time is unavailable 30 min after appointment start time & the duration of the appointment must be within the business hours of  9 am. to 5pm. Monday - Friday Eastern Standard Time.
+        public async Task<List<DateTime>> GetAvailableTimes(DateTime date)
+        {
+            // convert date parameter to utc
+            DateTime startDate = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
+            List<Appointment> appointments = await GetAppointments(UserContext.UserId, startDate, startDate.AddDays(1));
+            List<DateTime> availableTimes = new List<DateTime>();
+
+            // get all the times between 9 am and 5 pm EST
+            TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            DateTime estStart = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 9, 0, 0), estZone);
+            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 17, 0, 0), estZone);
+
+            for (DateTime time = estStart; time < estEnd; time = time.AddMinutes(30))
+            {
+                availableTimes.Add(time);
+            }
+
+            // remove the times that are already booked
+            foreach (Appointment appointment in appointments)
+            {
+                availableTimes.Remove(appointment.Start.ToUniversalTime());
+                availableTimes.Remove(appointment.End.ToUniversalTime());
+            }
+            return availableTimes;
+        }
+        
 
         // HELPER METHODS
         // There is invalid data in some of the existing test data in the database.

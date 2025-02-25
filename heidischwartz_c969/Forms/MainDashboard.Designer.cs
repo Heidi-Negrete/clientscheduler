@@ -44,11 +44,12 @@
             panel5 = new System.Windows.Forms.Panel();
             monthCalendar = new System.Windows.Forms.MonthCalendar();
             panel2 = new System.Windows.Forms.Panel();
+            btnEditApt = new System.Windows.Forms.Button();
+            lblAppointmentsClient = new System.Windows.Forms.Label();
             btnDeleteApt = new System.Windows.Forms.Button();
             btnAddApt = new System.Windows.Forms.Button();
             dgvAppointments = new System.Windows.Forms.DataGridView();
             Title = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            Client = new System.Windows.Forms.DataGridViewComboBoxColumn();
             Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ApptLocation = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -236,6 +237,8 @@
             // panel2
             // 
             panel2.BackColor = System.Drawing.Color.FromArgb(((int)((byte)41)), ((int)((byte)128)), ((int)((byte)185)));
+            panel2.Controls.Add(btnEditApt);
+            panel2.Controls.Add(lblAppointmentsClient);
             panel2.Controls.Add(btnDeleteApt);
             panel2.Controls.Add(btnAddApt);
             panel2.Controls.Add(dgvAppointments);
@@ -245,6 +248,30 @@
             panel2.Name = "panel2";
             panel2.Size = new System.Drawing.Size(751, 425);
             panel2.TabIndex = 2;
+            // 
+            // btnEditApt
+            // 
+            btnEditApt.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right));
+            btnEditApt.BackColor = System.Drawing.SystemColors.Control;
+            btnEditApt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            btnEditApt.Font = new System.Drawing.Font("Century Gothic", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            btnEditApt.Location = new System.Drawing.Point(567, 382);
+            btnEditApt.Name = "btnEditApt";
+            btnEditApt.Size = new System.Drawing.Size(83, 35);
+            btnEditApt.TabIndex = 18;
+            btnEditApt.Text = "EDIT";
+            btnEditApt.UseVisualStyleBackColor = false;
+            btnEditApt.Click += btnEditAppointment_Clicked;
+            // 
+            // lblAppointmentsClient
+            // 
+            lblAppointmentsClient.Dock = System.Windows.Forms.DockStyle.Left;
+            lblAppointmentsClient.Font = new System.Drawing.Font("Segoe UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            lblAppointmentsClient.Location = new System.Drawing.Point(0, 376);
+            lblAppointmentsClient.Name = "lblAppointmentsClient";
+            lblAppointmentsClient.Size = new System.Drawing.Size(468, 49);
+            lblAppointmentsClient.TabIndex = 17;
+            lblAppointmentsClient.Text = "Client for selected appointment: JARY HOLMES";
             // 
             // btnDeleteApt
             // 
@@ -266,7 +293,7 @@
             btnAddApt.BackColor = System.Drawing.SystemColors.Control;
             btnAddApt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             btnAddApt.Font = new System.Drawing.Font("Century Gothic", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            btnAddApt.Location = new System.Drawing.Point(567, 382);
+            btnAddApt.Location = new System.Drawing.Point(474, 382);
             btnAddApt.Name = "btnAddApt";
             btnAddApt.Size = new System.Drawing.Size(83, 35);
             btnAddApt.TabIndex = 15;
@@ -281,7 +308,7 @@
             dgvAppointments.BackgroundColor = System.Drawing.SystemColors.Control;
             dgvAppointments.BorderStyle = System.Windows.Forms.BorderStyle.None;
             dgvAppointments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvAppointments.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { Title, Client, Description, Type, ApptLocation, Contact, AppointmentUrl, Start, End });
+            dgvAppointments.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] { Title, Description, Type, ApptLocation, Contact, AppointmentUrl, Start, End });
             dgvAppointments.Dock = System.Windows.Forms.DockStyle.Top;
             dgvAppointments.Location = new System.Drawing.Point(0, 36);
             dgvAppointments.Name = "dgvAppointments";
@@ -289,6 +316,7 @@
             dgvAppointments.RowTemplate.Height = 25;
             dgvAppointments.Size = new System.Drawing.Size(751, 340);
             dgvAppointments.TabIndex = 4;
+            dgvAppointments.CellClick += dgvAppointments_Changed;
             dgvAppointments.CellValueChanged += dgvAppointments_Changed;
             dgvAppointments.DataBindingComplete += dgvAppointments_DataBindingComplete;
             // 
@@ -298,15 +326,7 @@
             Title.DataPropertyName = "Title";
             Title.HeaderText = "Title";
             Title.Name = "Title";
-            Title.Width = 84;
-            // 
-            // Client
-            // 
-            Client.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            Client.DataPropertyName = "Client";
-            Client.HeaderText = "Client";
-            Client.Name = "Client";
-            Client.Width = 83;
+            Title.Width = 94;
             // 
             // Description
             // 
@@ -314,7 +334,7 @@
             Description.DataPropertyName = "Description";
             Description.HeaderText = "Description";
             Description.Name = "Description";
-            Description.Width = 84;
+            Description.Width = 94;
             // 
             // Type
             // 
@@ -322,7 +342,7 @@
             Type.DataPropertyName = "Type";
             Type.HeaderText = "Type";
             Type.Name = "Type";
-            Type.Width = 83;
+            Type.Width = 93;
             // 
             // ApptLocation
             // 
@@ -330,7 +350,7 @@
             ApptLocation.DataPropertyName = "Location";
             ApptLocation.HeaderText = "Location";
             ApptLocation.Name = "ApptLocation";
-            ApptLocation.Width = 84;
+            ApptLocation.Width = 95;
             // 
             // Contact
             // 
@@ -338,7 +358,7 @@
             Contact.DataPropertyName = "Contact";
             Contact.HeaderText = "Contact";
             Contact.Name = "Contact";
-            Contact.Width = 83;
+            Contact.Width = 94;
             // 
             // AppointmentUrl
             // 
@@ -348,7 +368,7 @@
             AppointmentUrl.Name = "AppointmentUrl";
             AppointmentUrl.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             AppointmentUrl.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            AppointmentUrl.Width = 80;
+            AppointmentUrl.Width = 95;
             // 
             // Start
             // 
@@ -356,7 +376,7 @@
             Start.DataPropertyName = "Start";
             Start.HeaderText = "Start";
             Start.Name = "Start";
-            Start.Width = 85;
+            Start.Width = 91;
             // 
             // End
             // 
@@ -364,7 +384,7 @@
             End.DataPropertyName = "End";
             End.HeaderText = "End";
             End.Name = "End";
-            End.Width = 84;
+            End.Width = 94;
             // 
             // lblHeadline
             // 
@@ -408,6 +428,10 @@
             ResumeLayout(false);
         }
 
+        private System.Windows.Forms.Button btnEditApt;
+
+        private System.Windows.Forms.Label lblAppointmentsClient;
+
         #endregion
 
         private Panel panelSideMenu;
@@ -431,7 +455,6 @@
         private System.Windows.Forms.Panel panel5;
         private BindingSource appointmentBindingSource;
         private DataGridViewTextBoxColumn Title;
-        private DataGridViewComboBoxColumn Client;
         private DataGridViewTextBoxColumn Description;
         private DataGridViewTextBoxColumn Type;
         private DataGridViewTextBoxColumn ApptLocation;
