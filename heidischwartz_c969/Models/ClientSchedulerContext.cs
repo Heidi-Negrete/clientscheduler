@@ -82,67 +82,66 @@ public partial class ClientSchedulerContext : DbContext
         });
 
         modelBuilder.Entity<Appointment>(entity =>
-        {
-            entity.HasKey(e => e.AppointmentId).HasName("PRIMARY");
+    {
+        entity.HasKey(e => e.AppointmentId).HasName("PRIMARY");
 
-            entity.ToTable("appointment");
+        entity.ToTable("appointment");
 
-            entity.HasIndex(e => e.CustomerId, "appointment_ibfk_1");
+        entity.HasIndex(e => e.CustomerId, "appointment_ibfk_1");
 
-            entity.HasIndex(e => e.UserId, "userId");
+        entity.HasIndex(e => e.UserId, "userId");
 
-            entity.Property(e => e.AppointmentId).HasColumnName("appointmentId");
-            entity.Property(e => e.Contact)
-                .HasColumnType("text")
-                .HasColumnName("contact");
-            entity.Property(e => e.CreateDate)
-                .HasColumnType("datetime")
-                .HasColumnName("createDate");
-            entity.Property(e => e.CreatedBy)
-                .HasMaxLength(40)
-                .HasColumnName("createdBy");
-            entity.Property(e => e.CustomerId).HasColumnName("customerId");
-            entity.Property(e => e.Description)
-                .HasColumnType("text")
-                .HasColumnName("description");
-            entity.Property(e => e.End)
-                .HasColumnType("datetime")
-                .HasColumnName("end");
-            entity.Property(e => e.LastUpdate)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("lastUpdate");
-            entity.Property(e => e.LastUpdateBy)
-                .HasMaxLength(40)
-                .HasColumnName("lastUpdateBy");
-            entity.Property(e => e.Location)
-                .HasColumnType("text")
-                .HasColumnName("location");
-            entity.Property(e => e.Start)
-                .HasColumnType("datetime")
-                .HasColumnName("start");
-            entity.Property(e => e.Title)
-                .HasMaxLength(255)
-                .HasColumnName("title");
-            entity.Property(e => e.Type)
-                .HasColumnType("text")
-                .HasColumnName("type");
-            entity.Property(e => e.Url)
-                .HasMaxLength(255)
-                .HasColumnName("url");
-            entity.Property(e => e.UserId).HasColumnName("userId");
+        entity.Property(e => e.AppointmentId).HasColumnName("appointmentId");
+        entity.Property(e => e.Contact)
+            .HasColumnType("text")
+            .HasColumnName("contact");
+        entity.Property(e => e.CreateDate)
+            .HasColumnType("datetime")
+            .HasColumnName("createDate");
+        entity.Property(e => e.CreatedBy)
+            .HasMaxLength(40)
+            .HasColumnName("createdBy");
+        entity.Property(e => e.CustomerId).HasColumnName("customerId");
+        entity.Property(e => e.Description)
+            .HasColumnName("description");
+        entity.Property(e => e.End)
+            .HasColumnType("datetime")
+            .HasColumnName("end");
+        entity.Property(e => e.LastUpdate)
+            .ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .HasColumnType("timestamp")
+            .HasColumnName("lastUpdate");
+        entity.Property(e => e.LastUpdateBy)
+            .HasMaxLength(40)
+            .HasColumnName("lastUpdateBy");
+        entity.Property(e => e.Location)
+            .HasColumnType("text")
+            .HasColumnName("location");
+        entity.Property(e => e.Start)
+            .HasColumnType("datetime")
+            .HasColumnName("start");
+        entity.Property(e => e.Title)
+            .HasMaxLength(255)
+            .HasColumnName("title");
+        entity.Property(e => e.Type)
+            .HasColumnType("text")
+            .HasColumnName("type");
+        entity.Property(e => e.Url)
+            .HasMaxLength(255)
+            .HasColumnName("url");
+        entity.Property(e => e.UserId).HasColumnName("userId");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("appointment_ibfk_1");
+        entity.HasOne(d => d.Customer).WithMany(p => p.Appointments)
+            .HasForeignKey(d => d.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade) // Enable cascading deletes
+            .HasConstraintName("appointment_ibfk_1");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("appointment_ibfk_2");
-        });
+        entity.HasOne(d => d.User).WithMany(p => p.Appointments)
+            .HasForeignKey(d => d.UserId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("appointment_ibfk_2");
+    });
 
         modelBuilder.Entity<City>(entity =>
         {

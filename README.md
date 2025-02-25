@@ -1,11 +1,13 @@
 # Client Scheduler
 
-Winforms .NET Core application  
+Winforms .NET application  
 _Object-Oriented Application Development with Advanced C# C969 WGU_
 
-- Uses Entity Framework Core to reverse-engineer a provided database schema in order to scaffold entity type classes and a DbContext class.
+**THIS PROJECT IS ON HOLD UNTIL I CAN REWRITE**
 
-- Uses MVP design pattern
+- Uses Entity Framework to reverse-engineer a provided database schema in order to scaffold entity type classes and a DbContext class.
+
+- (Attempts) to use MVP design pattern
 
 ## Login Form
 

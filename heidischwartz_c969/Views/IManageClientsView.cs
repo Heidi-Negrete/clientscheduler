@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace heidischwartz_c969.Views
 {
-    public interface IManageClientsView: IView
+    public interface IManageClientsView
     {
+        public SchedulerService Scheduler { get; set; }
         public event EventHandler<ClientEventArgs> AddClient;
         public event EventHandler<ClientEventArgs> EditClient;
         public event EventHandler<ClientEventArgs> DeleteClient;
@@ -18,5 +19,6 @@ namespace heidischwartz_c969.Views
         public bool addingClient { get; set; }
         public void updateView();
         public void successfullySubmitClientChanges();
+        public void ShowError(string message);
     }
 }

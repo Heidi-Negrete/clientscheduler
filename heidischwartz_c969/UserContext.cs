@@ -10,5 +10,7 @@ namespace heidischwartz_c969
     {
         static public string? Name {get; set;}
         static public int UserId { get; set; } = 0;
+        
+        static public string? Location { get; set; }
     }
 }

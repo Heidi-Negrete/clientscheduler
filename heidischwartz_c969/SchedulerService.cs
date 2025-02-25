@@ -16,7 +16,7 @@ namespace heidischwartz_c969
         public SchedulerService(IClientSchedulerRepository repository)
         {
             if (repository == null) throw new ArgumentNullException("repository");
-            _repository = repository;  
+            _repository = repository;
         }
 
         public bool Login(string username, string password)
@@ -28,8 +28,9 @@ namespace heidischwartz_c969
             return false;
         }
 
-        public Week getSchedule(DateTime date)
+        public async Task<Week> getSchedule(DateTime date)
         {
+            await _repository.SeedTestData(); // TEMP REMOVE
             Week thisWeek = new Week();
 
             thisWeek.TargetDate = date;
@@ -42,7 +43,7 @@ namespace heidischwartz_c969
             }
 
             // get appointments from repository
-            List<Appointment> appointments = _repository.GetAppointments(UserContext.UserId, firstDayOfWeek.ToUniversalTime(), firstDayOfWeek.AddDays(6).ToUniversalTime());
+            List<Appointment> appointments = await _repository.GetAppointments(UserContext.UserId, firstDayOfWeek.ToUniversalTime(), firstDayOfWeek.AddDays(6).ToUniversalTime());
 
             // convert apts back to local time before assigning to week, which is local time
             foreach (Appointment appointment in appointments)
@@ -90,13 +91,13 @@ namespace heidischwartz_c969
             return thisWeek;
         }
 
-        public void AddAppointment(Appointment appointment)
+        public async Task AddAppointment(Appointment appointment)
         {
             appointment.Start = appointment.Start.ToUniversalTime();
             appointment.End = appointment.End.ToUniversalTime();
             try
             {
-                _repository.AddAppointment(UserContext.Name, appointment);
+                await _repository.AddAppointment(UserContext.Name, appointment);
             }
             catch
             {
@@ -104,11 +105,11 @@ namespace heidischwartz_c969
             }
         }
 
-        public void DeleteAppointment(Appointment appointment)
+        public async Task DeleteAppointment(Appointment appointment)
         {
             try
             {
-                _repository.DeleteAppointment(appointment);
+                await _repository.DeleteAppointment(appointment);
             }
             catch
             {
@@ -116,13 +117,13 @@ namespace heidischwartz_c969
             }
         }
 
-        public void UpdateAppointment(Appointment appointment)
+        public async Task UpdateAppointment(Appointment appointment)
         {
             appointment.Start = appointment.Start.ToUniversalTime();
             appointment.End = appointment.End.ToUniversalTime();
             try
             {
-                _repository.UpdateAppointment(UserContext.Name, appointment);
+                await _repository.UpdateAppointment(UserContext.Name, appointment);
             }
             catch
             {
@@ -130,11 +131,11 @@ namespace heidischwartz_c969
             }
         }
 
-        public List<Customer> getCustomers()
+        public async Task<List<Customer>> getCustomers()
         {
            try
             {
-                return _repository.GetCustomers();
+                return await _repository.GetCustomers();
             }
             catch
             {
@@ -142,11 +143,11 @@ namespace heidischwartz_c969
             }
         }
 
-        public void addCustomer(Customer customer)
+        public async Task addCustomer(Customer customer)
         {
             try
             {
-                _repository.AddCustomer(customer);
+                await _repository.AddCustomer(customer);
             }
             catch
             {
@@ -154,28 +155,48 @@ namespace heidischwartz_c969
             }
         }
 
-        public void deleteCustomer(Customer customer)
+        public async Task deleteCustomer(Customer customer)
         {
             try
             {
-                _repository.DeleteCustomer(customer);
+                await _repository.DeleteCustomer(customer);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting customer", ex);
+            }
+        }
+
+        public async Task updateCustomer(Customer customer)
+        {
+            try
+            {
+                await _repository.UpdateCustomer(customer);
             }
             catch
             {
                 throw;
             }
         }
-
-        public void updateCustomer(Customer customer)
+        
+        public async Task<List<Appointment>> GetAppointmentsByCustomerId(int customerId)
         {
             try
             {
-                _repository.UpdateCustomer(customer);
+                var appointments = await _repository.GetAppointmentsByCustomerId(customerId);
+                foreach (var appointment in appointments)
+                {
+                    appointment.Start = appointment.Start.ToLocalTime();
+                    appointment.End = appointment.End.ToLocalTime();
+                }
+                return appointments;
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 throw;
             }
+            
         }
     }
 }

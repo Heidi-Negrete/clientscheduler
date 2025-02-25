@@ -1,15 +1,6 @@
 ﻿using heidischwartz_c969.Presenters;
 using heidischwartz_c969.Views;
 using heidischwartz_c969.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Serilog;
 
 namespace heidischwartz_c969.Forms
@@ -24,7 +15,6 @@ namespace heidischwartz_c969.Forms
         public event EventHandler<EventArgs> LoggedOut;
         public event EventHandler<EventArgs> ReportRequested;
         public event EventHandler<EventArgs> ClientsManaged;
-
         public SchedulerService Scheduler { get; set; }
 
         private DashboardPresenter _dashboardPresenter;
@@ -60,7 +50,6 @@ namespace heidischwartz_c969.Forms
 
         public void BindData()
         {
-
             dgvAppointments.AutoGenerateColumns = false;
             dgvWeekView.AutoGenerateColumns = false;
             dgvWeekView.ShowCellToolTips = false;
@@ -91,13 +80,11 @@ namespace heidischwartz_c969.Forms
             AddAptForm.Show();
 
             // prevent user from interacting with dashboard while adding appointment
-            this.Enabled = false; 
-            AddAptForm.FormClosed += (s, args) => this.Enabled = true;
-            AddAppointmentForm = null;
-
-
-            // dont think need this event
-            //AppointmentAdded?.Invoke(this, new AppointmentEventArgs(new Appointment()));
+            AddAptForm.FormClosed += (s, args) => 
+            {
+                this.Enabled = true;
+                AddAppointmentForm = null;
+            };
         }
 
         private void btnDeleteApt_Clicked(object sender, EventArgs e)
@@ -115,7 +102,10 @@ namespace heidischwartz_c969.Forms
         }
         private void dgvAppointments_Changed(object sender, DataGridViewCellEventArgs e)
         {
-            AppointmentChanged?.Invoke(this, new AppointmentEventArgs((Appointment)dgvAppointments.CurrentRow.DataBoundItem));
+            if (dgvAppointments.CurrentRow?.DataBoundItem is Appointment appointment)
+            {
+                AppointmentChanged?.Invoke(this, new AppointmentEventArgs(appointment));
+            }
         }
 
         private void btnManageClients_Clicked(object sender, EventArgs e)
@@ -125,18 +115,30 @@ namespace heidischwartz_c969.Forms
 
             // prevent user from interacting with dashboard while managing clients
             this.Enabled = false;
-            manageClientsForm.FormClosed += (s, args) => this.Enabled = true;
+            manageClientsForm.FormClosed += (s, args) =>
+            {
+                this.Enabled = true;
+                ClientsManaged?.Invoke(this, EventArgs.Empty);
+            };
         }
 
         private void btnGenerateReport_Clicked(object sender, EventArgs e)
         {
-            if (cbReports.SelectedIndex == 0)
+            try
             {
-                MessageBox.Show("Please select a report format.");
-                return;
+                if (cbReports.SelectedIndex == 0)
+                {
+                    MessageBox.Show("Please select a report format.");
+                    return;
+                }
+                // to do in future: add report generation logic add report name in args?
+                ReportRequested?.Invoke(this, EventArgs.Empty);
             }
-            // TODO Include name of report in args
-            ReportRequested?.Invoke(this, EventArgs.Empty);
+            catch (Exception ex)
+            {
+                _logger.Error("Error generating report: {Message}", ex.Message);
+                ShowError("An error occurred while generating the report.");
+            }
         }
 
         private void btnLogout_Clicked(object sender, EventArgs e)
@@ -170,6 +172,12 @@ namespace heidischwartz_c969.Forms
 
         public void UpdateBindingSources()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(UpdateBindingSources));
+                return;
+            }
+
             dgvAppointments.DataSource = null;
             dgvAppointments.DataSource = Appointments;
             dgvWeekView.DataSource = null;

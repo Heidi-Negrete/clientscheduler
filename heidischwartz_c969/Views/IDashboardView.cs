@@ -1,15 +1,10 @@
 ﻿using heidischwartz_c969.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace heidischwartz_c969.Views
 {
-    public interface IDashboardView : IView
+    public interface IDashboardView
     {
+        public SchedulerService Scheduler { get; set; }
         public event EventHandler<AppointmentEventArgs> AppointmentAdded;
         public event EventHandler<AppointmentEventArgs> AppointmentChanged;
         public event EventHandler<AppointmentEventArgs> AppointmentDeleted;

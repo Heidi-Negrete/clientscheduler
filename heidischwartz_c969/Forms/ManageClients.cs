@@ -23,6 +23,8 @@ namespace heidischwartz_c969.Forms
         public event EventHandler<ClientEventArgs> EditClient;
         public event EventHandler<ClientEventArgs> DeleteClient;
         public List<Customer> Clients { get; set; }
+        
+        private bool delete = false;
 
         public bool addingClient { get; set; }
 
@@ -34,6 +36,7 @@ namespace heidischwartz_c969.Forms
             Scheduler = scheduler;
             _presenter = new ManageClientsPresenter(this);
             dgvClients.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvClients.ReadOnly = true;
             tbCustomerName.Enabled = false;
             tbAddress1.Enabled = false;
             tbAddress2.Enabled = false;
@@ -43,13 +46,44 @@ namespace heidischwartz_c969.Forms
             tbPhone.Enabled = false;
             btnSave.Enabled = false;
             addingClient = false;
-            dgvClients.ClearSelection();
+            
+            panelLoading.Visible = false;
+            lblLoading.Visible = false;
+            
+            dgvClients.AutoGenerateColumns = false;
+            
+            dgvClients.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "CustomerName",
+                HeaderText = "Name",
+                Name = "Name"
+            });
+            dgvClients.Columns.Add(new DataGridViewCheckBoxColumn
+            {
+                DataPropertyName = "Active",
+                HeaderText = "Active",
+                Name = "Active"
+            });
+            dgvClients.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "LastUpdate",
+                HeaderText = "Last Update",
+                Name = "LastUpdate"
+            });
+            dgvClients.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "LastUpdateBy",
+                HeaderText = "Last Update By",
+                Name = "LastUpdateBy"
+            });
+            
         }
 
         public void updateView()
         {
             dgvClients.DataSource = null;
             dgvClients.DataSource = Clients;
+            dgvClients.ClearSelection();
         }
 
         private void tbCustomerName_Changed(object sender, EventArgs e)
@@ -89,22 +123,36 @@ namespace heidischwartz_c969.Forms
 
         private void btnSave_Clicked(object sender, EventArgs e)
         {
-
-            Client.CustomerName = tbCustomerName.Text;
-            Client.Address.Address1 = tbAddress1.Text;
-            Client.Address.Address2 = tbAddress2.Text;
-            Client.Address.City.City1 = tbCity.Text;
-            Client.Address.City.Country.Country1 = tbCountry.Text;
-            Client.Address.PostalCode = tbPostalCode.Text;
-            Client.Address.Phone = tbPhone.Text;
-
-            if (addingClient)
+            if (!validateClient())
             {
-                AddClient?.Invoke(this, new ClientEventArgs(Client));
                 return;
             }
             
-            EditClient?.Invoke(this, new ClientEventArgs(Client));
+            try
+            {
+                Client.CustomerName = tbCustomerName.Text;
+                Client.Address.Address1 = tbAddress1.Text;
+                Client.Address.Address2 = tbAddress2.Text;
+                Client.Address.City.City1 = tbCity.Text;
+                Client.Address.City.Country.Country1 = tbCountry.Text;
+                Client.Address.PostalCode = tbPostalCode.Text;
+                Client.Address.Phone = tbPhone.Text;
+
+                if (addingClient)
+                {
+                    AddClient?.Invoke(this, new ClientEventArgs(Client));
+                }
+                else
+                {
+                    EditClient?.Invoke(this, new ClientEventArgs(Client));
+                }
+
+                successfullySubmitClientChanges();
+            }
+            catch (Exception ex)
+            {
+                ShowError("An error occurred while saving the client: " + ex.Message);
+            }
         }
 
         private void btnAdd_Clicked(object sender, EventArgs e)
@@ -114,14 +162,30 @@ namespace heidischwartz_c969.Forms
                 MessageBox.Show("Please finish adding client before adding another.");
                 return;
             }
+            
+            addingClient = true;
 
             dgvClients.ClearSelection();
 
-            Client = new Customer();
-            Client.Address = new Address();
-            Client.Address.City = new City();
-            Client.Address.City.Country = new Country();
+            Client = new Customer
+            {
+                Address = new Address
+                {
+                    City = new City
+                    {
+                        Country = new Country()
+                    }
+                }
+            };
 
+            tbCustomerName.Text = "";
+            tbAddress1.Text = "";
+            tbAddress2.Text = "";
+            tbCity.Text = "";
+            tbPostalCode.Text = "";
+            tbCountry.Text = "";
+            tbPhone.Text = "";
+            
             tbCustomerName.Enabled = true;
             tbAddress1.Enabled = true;
             tbAddress2.Enabled = true;
@@ -146,44 +210,14 @@ namespace heidischwartz_c969.Forms
             }
 
             Client = dgvClients.CurrentRow.DataBoundItem as Customer;
-
-            // raise event that client is being edited IF checking
-            // ?
-            // get client details (address, city, etc)
-
-
-
-            // probably move all  this out into new method
-
-            // some existing database data may be invalid so this is here to deal with corrupt data for assessment.
-            if (Client.Address != null)
+            
+            if (Client == null)
             {
-                try
-                {
-                    tbAddress1.Text = Client.Address.Address1;
-                    tbAddress2.Text = Client.Address.Address2;
-                    tbCountry.Text = Client.Address.Phone;
-                    tbPostalCode.Text = Client.Address.PostalCode;
-                }
-                catch
-                { return; }
+                MessageBox.Show("Please select a client to edit.");
+                return;
             }
-            else
-            {
-                Client.Address = new Address();
-            }
-
-            if (Client.Address.City != null)
-            {
-                tbCity.Text = Client.Address.City.ToString();
-            }
-            else
-            {
-                Client.Address.City = new City();
-            }
-
-            tbCustomerName.Text = Client.CustomerName;
-
+            
+            ValidateAndSetDefaults(Client);
 
             tbCustomerName.Enabled = true;
             tbAddress1.Enabled = true;
@@ -195,6 +229,42 @@ namespace heidischwartz_c969.Forms
             tbPhone.Enabled = true;
 
 
+        }
+        
+        private void ValidateAndSetDefaults(Customer customer)
+        {
+            if (customer.Address != null)
+            {
+                if (customer.Address.CreateDate == default)
+                {
+                    customer.Address.CreateDate = DateTime.UtcNow;
+                    customer.Address.CreatedBy = UserContext.Name;
+                }
+                customer.Address.LastUpdate = DateTime.UtcNow;
+                customer.Address.LastUpdateBy = UserContext.Name;
+
+                if (customer.Address.City != null)
+                {
+                    if (customer.Address.City.CreateDate == default)
+                    {
+                        customer.Address.City.CreateDate = DateTime.UtcNow;
+                        customer.Address.City.CreatedBy = UserContext.Name;
+                    }
+                    customer.Address.City.LastUpdate = DateTime.UtcNow;
+                    customer.Address.City.LastUpdateBy = UserContext.Name;
+
+                    if (customer.Address.City.Country != null)
+                    {
+                        if (customer.Address.City.Country.CreateDate == default)
+                        {
+                            customer.Address.City.Country.CreateDate = DateTime.UtcNow;
+                            customer.Address.City.Country.CreatedBy = UserContext.Name;
+                        }
+                        customer.Address.City.Country.LastUpdate = DateTime.UtcNow;
+                        customer.Address.City.Country.LastUpdateBy = UserContext.Name;
+                    }
+                }
+            }
         }
 
         private void btnDelete_Clicked(object sender, EventArgs e)
@@ -213,7 +283,57 @@ namespace heidischwartz_c969.Forms
             Customer client = dgvClients.CurrentRow.DataBoundItem as Customer;
             // raise event that attempting to delete client
             // check that client doesn't have any existing appointments
-            DeleteClient?.Invoke(this, new ClientEventArgs(client));
+            if (client == null)
+            {
+                MessageBox.Show("Please select a client to delete.");
+                return;
+            }
+            panelLoading.Visible = true;
+            lblLoading.Visible = true;
+            Task.Run(() => DeleteClientAsync(client)).GetAwaiter().GetResult();
+
+            panelLoading.Visible = false;
+            lblLoading.Visible = false;
+
+            if (delete == true)
+            {
+                ValidateAndSetDefaults(client);
+                ;
+                DeleteClient?.Invoke(this, new ClientEventArgs(client));
+            }
+            
+        }
+
+        private async Task DeleteClientAsync(Customer client)
+        {
+            
+            
+            try
+            {
+                var appointments = await Scheduler.GetAppointmentsByCustomerId(client.CustomerId);
+
+                if (appointments.Any())
+                {
+                    DialogResult result = MessageBox.Show(
+                        "This client has appointments. Are you sure you want to delete the client and all associated appointments?",
+                        "Confirm Delete",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.No)
+                    {
+                        return;
+                    }
+                    
+                    delete = true;
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}");
+            }
         }
 
         private void btnExit_Clicked(object sender, EventArgs e)
@@ -223,104 +343,115 @@ namespace heidischwartz_c969.Forms
         }
 
         private bool validateClient()
+{
+    bool isValid = true;
+
+    // Validate Name
+    if (string.IsNullOrEmpty(tbCustomerName.Text))
+    {
+        _errorProvider.SetError(tbCustomerName, "Customer name is required.");
+        isValid = false;
+    }
+    else
+    {
+        _errorProvider.SetError(tbCustomerName, "");
+    }
+
+    // Validate Address
+    if (string.IsNullOrEmpty(tbAddress1.Text))
+    {
+        _errorProvider.SetError(tbAddress1, "Address is required.");
+        isValid = false;
+    }
+    else
+    {
+        _errorProvider.SetError(tbAddress1, "");
+    }
+
+    // Validate City
+    if (string.IsNullOrEmpty(tbCity.Text))
+    {
+        _errorProvider.SetError(tbCity, "City is required.");
+        isValid = false;
+    }
+    else
+    {
+        _errorProvider.SetError(tbCity, "");
+    }
+
+    // Validate Postal Code
+    if (string.IsNullOrEmpty(tbPostalCode.Text))
+    {
+        _errorProvider.SetError(tbPostalCode, "Postal code is required.");
+        isValid = false;
+    }
+    else if (!tbPostalCode.Text.All(char.IsDigit))
+    {
+        _errorProvider.SetError(tbPostalCode, "Postal code must be numeric.");
+        isValid = false;
+    }
+    else if (tbPostalCode.Text.Length < 5 || tbPostalCode.Text.Length > 10)
+    {
+        _errorProvider.SetError(tbPostalCode, "Postal code must be between 5 and 10 digits.");
+        isValid = false;
+    }
+    else
+    {
+        _errorProvider.SetError(tbPostalCode, "");
+    }
+
+    // Validate Country
+    if (string.IsNullOrEmpty(tbCountry.Text))
+    {
+        _errorProvider.SetError(tbCountry, "Country is required.");
+        isValid = false;
+    }
+    else
+    {
+        _errorProvider.SetError(tbCountry, "");
+    }
+
+    // Validate Phone
+    if (string.IsNullOrEmpty(tbPhone.Text))
+    {
+        _errorProvider.SetError(tbPhone, "Phone number is required.");
+        isValid = false;
+    }
+    else if (!System.Text.RegularExpressions.Regex.IsMatch(tbPhone.Text, @"^\d{3}-\d{3}-\d{4}$"))
+    {
+        _errorProvider.SetError(tbPhone, "Phone number must be in the format XXX-XXX-XXXX.");
+        isValid = false;
+    }
+    else
+    {
+        _errorProvider.SetError(tbPhone, "");
+    }
+
+    return isValid;
+}
+        
+        public void dgvClients_CellClicked(object sender, DataGridViewCellEventArgs e)
         {
-            bool isValid = true;
-            // Validate Name
-            if (string.IsNullOrEmpty(tbCustomerName.Text))
+            if (addingClient)
             {
-                _errorProvider.SetError(tbCustomerName, "Customer name is required.");
-                isValid = false;
-            }
-            else
-            {
-                _errorProvider.SetError(tbCustomerName, "");
+                MessageBox.Show("Please finish adding client before selecting another.");
+                return;
             }
 
-            // Validate Address
-            if (string.IsNullOrEmpty(tbAddress1.Text))
+            if (dgvClients.CurrentRow == null || !dgvClients.CurrentRow.Selected)
             {
-                _errorProvider.SetError(tbAddress1, "Address is required.");
-                isValid = false;
-            }
-            else
-            {
-                _errorProvider.SetError(tbAddress1, "");
+                return;
             }
 
-            // Validate City
-            if (string.IsNullOrEmpty(tbCity.Text))
-            {
-                _errorProvider.SetError(tbCity, "City is required.");
-                isValid = false;
-            }
-            else
-            {
-                _errorProvider.SetError(tbCity, "");
-            }
-
-            // Validate Postal Code
-            if (string.IsNullOrEmpty(tbPostalCode.Text))
-            {
-                _errorProvider.SetError(tbPostalCode, "Postal code is required.");
-                isValid = false;
-            }
-            else if (!tbPostalCode.Text.All(char.IsDigit))
-            {
-                _errorProvider.SetError(tbPostalCode, "Postal code must be numeric.");
-                isValid = false;
-            }
-            else if (tbPostalCode.Text.Length < 5)
-            {
-                _errorProvider.SetError(tbPostalCode, "Postal code must be at least 5 digits.");
-                isValid = false;
-            }
-            else if (tbPostalCode.Text.Length > 10)
-            {
-                _errorProvider.SetError(tbPostalCode, "Postal code must be less than 10 digits.");
-                isValid = false;
-            }
-            else
-            {
-                _errorProvider.SetError(tbPostalCode, "");
-            }
-
-            // Validate Country
-            if (string.IsNullOrEmpty(tbCountry.Text))
-            {
-                _errorProvider.SetError(tbCountry, "Country is required.");
-                isValid = false;
-            }
-            else
-            {
-                _errorProvider.SetError(tbCountry, "");
-            }
-
-            // Validate Phone
-            if (string.IsNullOrEmpty(tbPhone.Text))
-            {
-                _errorProvider.SetError(tbPhone, "Phone number is required.");
-                isValid = false;
-            }
-            else if (!tbPhone.Text.All(char.IsDigit))
-            {
-                _errorProvider.SetError(tbPhone, "Phone number must be numeric.");
-                isValid = false;
-            }
-            else if (tbPhone.Text.Length < 10)
-            {
-                _errorProvider.SetError(tbPhone, "Phone number must be at least 10 digits.");
-                isValid = false;
-            }
-            else if (tbPhone.Text.Length > 15)
-            {
-                _errorProvider.SetError(tbPhone, "Phone number must be less than 15 digits.");
-                isValid = false;
-            }
-            else
-            {
-                _errorProvider.SetError(tbPhone, "");
-            }
-            return isValid;
+            Client = dgvClients.CurrentRow.DataBoundItem as Customer;
+            
+            tbCustomerName.Text = Client?.CustomerName ?? "";
+            tbAddress1.Text = Client?.Address?.Address1 ?? "";
+            tbAddress2.Text = Client?.Address?.Address2 ?? "";
+            tbCity.Text = Client?.Address?.City?.City1 ?? "";
+            tbPostalCode.Text = Client?.Address?.PostalCode ?? "";
+            tbCountry.Text = Client?.Address?.City?.Country?.Country1 ?? "";
+            tbPhone.Text = Client?.Address?.Phone ?? "";
 
         }
 
@@ -335,14 +466,12 @@ namespace heidischwartz_c969.Forms
             tbPhone.Text = "";
             btnSave.Enabled = false;
         }
-
-        private void dgvClients_CellClicked(object sender, DataGridViewCellEventArgs e)
+        
+        public void ShowError(string message)
         {
-           //  
-        }
-        private void ShowError(string message)
-        {
+            Console.WriteLine(message);
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+        
     }
 }
