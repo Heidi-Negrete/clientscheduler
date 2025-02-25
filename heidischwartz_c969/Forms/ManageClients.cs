@@ -1,27 +1,12 @@
 ﻿using heidischwartz_c969.Models;
-using heidischwartz_c969.Presenters;
-using heidischwartz_c969.Views;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace heidischwartz_c969.Forms
 {
-    public partial class ManageClients : Form, IManageClientsView
+    public partial class ManageClients : Form
     {
-        public SchedulerService Scheduler { get; set; }
-        private ManageClientsPresenter _presenter;
+        private readonly IClientSchedulerRepository _repository;
+        
         private ErrorProvider _errorProvider = new ErrorProvider();
-
-        public event EventHandler<ClientEventArgs> AddClient;
-        public event EventHandler<ClientEventArgs> EditClient;
-        public event EventHandler<ClientEventArgs> DeleteClient;
         public List<Customer> Clients { get; set; }
         
         private bool delete = false;
@@ -30,11 +15,10 @@ namespace heidischwartz_c969.Forms
 
         // client in question
         public Customer Client { get; set; }
-        public ManageClients(SchedulerService scheduler)
+        public ManageClients(IClientSchedulerRepository repository)
         {
             InitializeComponent();
-            Scheduler = scheduler;
-            _presenter = new ManageClientsPresenter(this);
+            _repository = repository;
             dgvClients.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvClients.ReadOnly = true;
             tbCustomerName.Enabled = false;
@@ -79,13 +63,15 @@ namespace heidischwartz_c969.Forms
             
         }
 
-        public void updateView()
+        public void UpdateView()
         {
             dgvClients.DataSource = null;
             dgvClients.DataSource = Clients;
             dgvClients.ClearSelection();
         }
-
+        
+        // UI EVENTS
+        
         private void tbCustomerName_Changed(object sender, EventArgs e)
         {
             btnSave.Enabled = validateClient();
@@ -140,11 +126,11 @@ namespace heidischwartz_c969.Forms
 
                 if (addingClient)
                 {
-                    AddClient?.Invoke(this, new ClientEventArgs(Client));
+                    AddClient(Client);
                 }
                 else
                 {
-                    EditClient?.Invoke(this, new ClientEventArgs(Client));
+                    EditClient(Client);
                 }
 
                 successfullySubmitClientChanges();
@@ -231,6 +217,74 @@ namespace heidischwartz_c969.Forms
 
         }
         
+        private void btnDelete_Clicked(object sender, EventArgs e)
+        {
+            if (addingClient)
+            {
+                MessageBox.Show("Please finish adding client before deleting.");
+                return;
+            }
+
+            if (dgvClients.CurrentRow == null || !dgvClients.CurrentRow.Selected)
+            {
+                MessageBox.Show("Please select a client to delete.");
+                return;
+            }
+            Customer client = dgvClients.CurrentRow.DataBoundItem as Customer;
+            // raise event that attempting to delete client
+            // check that client doesn't have any existing appointments
+            if (client == null)
+            {
+                MessageBox.Show("Please select a client to delete.");
+                return;
+            }
+            
+            
+            panelLoading.Visible = true;
+            lblLoading.Visible = true;
+            Task.Run(() => DeleteClientAsync(client)).GetAwaiter().GetResult();
+            panelLoading.Visible = false;
+            lblLoading.Visible = false;
+
+            if (delete == true)
+            {
+                ValidateAndSetDefaults(client);
+            }
+            
+        }
+        private void btnExit_Clicked(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you want to exit? Any unsaved changes will be lost.", "Exit", MessageBoxButtons.YesNo);
+            this.Close();
+        }
+        
+        public void dgvClients_CellClicked(object sender, DataGridViewCellEventArgs e)
+        {
+            if (addingClient)
+            {
+                MessageBox.Show("Please finish adding client before selecting another.");
+                return;
+            }
+
+            if (dgvClients.CurrentRow == null || !dgvClients.CurrentRow.Selected)
+            {
+                return;
+            }
+
+            Client = dgvClients.CurrentRow.DataBoundItem as Customer;
+            
+            tbCustomerName.Text = Client?.CustomerName ?? "";
+            tbAddress1.Text = Client?.Address?.Address1 ?? "";
+            tbAddress2.Text = Client?.Address?.Address2 ?? "";
+            tbCity.Text = Client?.Address?.City?.City1 ?? "";
+            tbPostalCode.Text = Client?.Address?.PostalCode ?? "";
+            tbCountry.Text = Client?.Address?.City?.Country?.Country1 ?? "";
+            tbPhone.Text = Client?.Address?.Phone ?? "";
+
+        }
+        
+        // END UI EVENTS
+        
         private void ValidateAndSetDefaults(Customer customer)
         {
             if (customer.Address != null)
@@ -267,50 +321,11 @@ namespace heidischwartz_c969.Forms
             }
         }
 
-        private void btnDelete_Clicked(object sender, EventArgs e)
-        {
-            if (addingClient)
-            {
-                MessageBox.Show("Please finish adding client before deleting.");
-                return;
-            }
-
-            if (dgvClients.CurrentRow == null || !dgvClients.CurrentRow.Selected)
-            {
-                MessageBox.Show("Please select a client to delete.");
-                return;
-            }
-            Customer client = dgvClients.CurrentRow.DataBoundItem as Customer;
-            // raise event that attempting to delete client
-            // check that client doesn't have any existing appointments
-            if (client == null)
-            {
-                MessageBox.Show("Please select a client to delete.");
-                return;
-            }
-            panelLoading.Visible = true;
-            lblLoading.Visible = true;
-            Task.Run(() => DeleteClientAsync(client)).GetAwaiter().GetResult();
-
-            panelLoading.Visible = false;
-            lblLoading.Visible = false;
-
-            if (delete == true)
-            {
-                ValidateAndSetDefaults(client);
-                ;
-                DeleteClient?.Invoke(this, new ClientEventArgs(client));
-            }
-            
-        }
-
         private async Task DeleteClientAsync(Customer client)
         {
-            
-            
             try
             {
-                var appointments = await Scheduler.GetAppointmentsByCustomerId(client.CustomerId);
+                var appointments = await _repository.GetAppointmentsByCustomerId(client.CustomerId);
 
                 if (appointments.Any())
                 {
@@ -336,125 +351,6 @@ namespace heidischwartz_c969.Forms
             }
         }
 
-        private void btnExit_Clicked(object sender, EventArgs e)
-        {
-            DialogResult result = MessageBox.Show("Are you sure you want to exit? Any unsaved changes will be lost.", "Exit", MessageBoxButtons.YesNo);
-            this.Close();
-        }
-
-        private bool validateClient()
-{
-    bool isValid = true;
-
-    // Validate Name
-    if (string.IsNullOrEmpty(tbCustomerName.Text))
-    {
-        _errorProvider.SetError(tbCustomerName, "Customer name is required.");
-        isValid = false;
-    }
-    else
-    {
-        _errorProvider.SetError(tbCustomerName, "");
-    }
-
-    // Validate Address
-    if (string.IsNullOrEmpty(tbAddress1.Text))
-    {
-        _errorProvider.SetError(tbAddress1, "Address is required.");
-        isValid = false;
-    }
-    else
-    {
-        _errorProvider.SetError(tbAddress1, "");
-    }
-
-    // Validate City
-    if (string.IsNullOrEmpty(tbCity.Text))
-    {
-        _errorProvider.SetError(tbCity, "City is required.");
-        isValid = false;
-    }
-    else
-    {
-        _errorProvider.SetError(tbCity, "");
-    }
-
-    // Validate Postal Code
-    if (string.IsNullOrEmpty(tbPostalCode.Text))
-    {
-        _errorProvider.SetError(tbPostalCode, "Postal code is required.");
-        isValid = false;
-    }
-    else if (!tbPostalCode.Text.All(char.IsDigit))
-    {
-        _errorProvider.SetError(tbPostalCode, "Postal code must be numeric.");
-        isValid = false;
-    }
-    else if (tbPostalCode.Text.Length < 5 || tbPostalCode.Text.Length > 10)
-    {
-        _errorProvider.SetError(tbPostalCode, "Postal code must be between 5 and 10 digits.");
-        isValid = false;
-    }
-    else
-    {
-        _errorProvider.SetError(tbPostalCode, "");
-    }
-
-    // Validate Country
-    if (string.IsNullOrEmpty(tbCountry.Text))
-    {
-        _errorProvider.SetError(tbCountry, "Country is required.");
-        isValid = false;
-    }
-    else
-    {
-        _errorProvider.SetError(tbCountry, "");
-    }
-
-    // Validate Phone
-    if (string.IsNullOrEmpty(tbPhone.Text))
-    {
-        _errorProvider.SetError(tbPhone, "Phone number is required.");
-        isValid = false;
-    }
-    else if (!System.Text.RegularExpressions.Regex.IsMatch(tbPhone.Text, @"^\d{3}-\d{3}-\d{4}$"))
-    {
-        _errorProvider.SetError(tbPhone, "Phone number must be in the format XXX-XXX-XXXX.");
-        isValid = false;
-    }
-    else
-    {
-        _errorProvider.SetError(tbPhone, "");
-    }
-
-    return isValid;
-}
-        
-        public void dgvClients_CellClicked(object sender, DataGridViewCellEventArgs e)
-        {
-            if (addingClient)
-            {
-                MessageBox.Show("Please finish adding client before selecting another.");
-                return;
-            }
-
-            if (dgvClients.CurrentRow == null || !dgvClients.CurrentRow.Selected)
-            {
-                return;
-            }
-
-            Client = dgvClients.CurrentRow.DataBoundItem as Customer;
-            
-            tbCustomerName.Text = Client?.CustomerName ?? "";
-            tbAddress1.Text = Client?.Address?.Address1 ?? "";
-            tbAddress2.Text = Client?.Address?.Address2 ?? "";
-            tbCity.Text = Client?.Address?.City?.City1 ?? "";
-            tbPostalCode.Text = Client?.Address?.PostalCode ?? "";
-            tbCountry.Text = Client?.Address?.City?.Country?.Country1 ?? "";
-            tbPhone.Text = Client?.Address?.Phone ?? "";
-
-        }
-
         public void successfullySubmitClientChanges()
         {
             tbCustomerName.Text = "";
@@ -471,6 +367,146 @@ namespace heidischwartz_c969.Forms
         {
             Console.WriteLine(message);
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        
+        public async void UpdateClients()
+        {
+            Clients = await _repository.GetCustomers();
+            UpdateView();
+        }
+        
+        private async void AddClient(Customer client)
+        {
+            // check that Client does not already exist (a client by this name already exists, are you sure you want to add?)
+            try
+            {
+                await _repository.AddCustomer(client);
+                UpdateClients();
+                successfullySubmitClientChanges();
+                Client = null;
+                addingClient = false;
+            }
+            catch (Exception ex)
+            {
+                ShowError("Error adding client: " + ex.Message);
+            }
+        }
+        
+        private async void EditClient(Customer client)
+        {
+            try
+            {
+                await _repository.UpdateCustomer(client);
+                UpdateClients();
+                successfullySubmitClientChanges();
+            }
+            catch (Exception ex)
+            {
+                ShowError("Error editing client: " + ex.Message);
+            }
+        }
+        
+        private async void DeleteClient(Customer client)
+        {
+            try
+            {
+                await _repository.DeleteCustomer(client);
+                UpdateClients();
+                successfullySubmitClientChanges();
+            }
+            catch (Exception ex)
+            {
+                ShowError("Error deleting client: " + ex.Message);
+            }
+        }
+        
+        // VALIDATION
+        private bool validateClient()
+        {   
+            bool isValid = true;
+
+            // Validate Name
+            if (string.IsNullOrEmpty(tbCustomerName.Text))
+            {
+                _errorProvider.SetError(tbCustomerName, "Customer name is required.");
+                isValid = false;
+            }
+            else
+            {
+                _errorProvider.SetError(tbCustomerName, "");
+            }
+
+            // Validate Address
+            if (string.IsNullOrEmpty(tbAddress1.Text))
+            {
+                _errorProvider.SetError(tbAddress1, "Address is required.");
+                isValid = false;
+            }
+            else
+            {
+                _errorProvider.SetError(tbAddress1, "");
+            }
+
+            // Validate City
+            if (string.IsNullOrEmpty(tbCity.Text))
+            {
+                _errorProvider.SetError(tbCity, "City is required.");
+                isValid = false;
+            }
+            else
+            {
+                _errorProvider.SetError(tbCity, "");
+            }
+
+            // Validate Postal Code
+            if (string.IsNullOrEmpty(tbPostalCode.Text))
+            {
+                _errorProvider.SetError(tbPostalCode, "Postal code is required.");
+                isValid = false;
+            }
+            else if (!tbPostalCode.Text.All(char.IsDigit))
+            {
+                _errorProvider.SetError(tbPostalCode, "Postal code must be numeric.");
+                isValid = false;
+            }
+            else if (tbPostalCode.Text.Length < 5 || tbPostalCode.Text.Length > 10)
+            {
+                _errorProvider.SetError(tbPostalCode, "Postal code must be between 5 and 10 digits.");
+                isValid = false;
+            }
+            else
+            {
+                _errorProvider.SetError(tbPostalCode, "");
+            }
+
+            // Validate Country
+            if (string.IsNullOrEmpty(tbCountry.Text))
+            {
+                _errorProvider.SetError(tbCountry, "Country is required.");
+                isValid = false;
+            }
+            else
+            {
+                _errorProvider.SetError(tbCountry, "");
+            }
+
+            // Validate Phone
+            if (string.IsNullOrEmpty(tbPhone.Text))
+            {
+                _errorProvider.SetError(tbPhone, "Phone number is required.");
+                isValid = false;
+            }
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(tbPhone.Text, @"^\d{3}-\d{3}-\d{4}$"))
+            {
+                _errorProvider.SetError(tbPhone, "Phone number must be in the format XXX-XXX-XXXX.");
+                isValid = false;
+            }
+            else
+            {
+                _errorProvider.SetError(tbPhone, "");
+            }
+
+            return isValid;
         }
         
     }

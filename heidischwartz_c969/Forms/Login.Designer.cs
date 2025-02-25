@@ -271,7 +271,6 @@
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             Text = "Login";
-            KeyDown += Login_KeyDown;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();

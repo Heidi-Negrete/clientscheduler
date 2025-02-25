@@ -1,33 +1,22 @@
-﻿using heidischwartz_c969.Presenters;
-using heidischwartz_c969.Views;
-using Serilog;
+﻿using Serilog;
 using System.Globalization;
 
 namespace heidischwartz_c969.Forms
 {
-    public partial class Login : Form, ILoginView
+    public partial class Login : Form
     {
-        private LoginPresenter _loginPresenter;
-        private ErrorProvider _errorProvider;
         private ILogger _logger;
-        public SchedulerService Scheduler { get; set; }
-        public event EventHandler<EventArgs> LoginAttempted;
-        private string location 
-        { 
-            get => this.lblLocation.Text;
-            set => lblLocation.Text = value;
-        }
-        string ILoginView.Username { get => this.tbUsername.Text; set => tbUsername.Text = value; }
-        string ILoginView.Password { get => this.tbPassword.Text; set => tbPassword.Text = value; }
+        private readonly IClientSchedulerRepository _repository;
+        private string location { get => this.lblLocation.Text; set => lblLocation.Text = value; }
+        private string Username { get => this.tbUsername.Text; set => tbUsername.Text = value; }
+        private string Password { get => this.tbPassword.Text; set => tbPassword.Text = value; }
 
-        public Login(SchedulerService schedulerService, ILogger logger)
+        public Login(IClientSchedulerRepository repository, ILogger logger)
         {
             InitializeComponent();
-            if (schedulerService == null) throw new ArgumentNullException("Scheduler Service");
-            Scheduler = schedulerService;
+            if (repository == null) throw new ArgumentNullException("Database Repository");
+            _repository = repository;
             _logger = logger;
-            _loginPresenter = new LoginPresenter(this, _logger);
-            _errorProvider = new ErrorProvider();
             location = setUpLocalization();
         }
 
@@ -68,7 +57,19 @@ namespace heidischwartz_c969.Forms
                 }
                 return;
             }
-            LoginAttempted?.Invoke(this, EventArgs.Empty);
+
+            AttemptLogin();
+        }
+
+        private void AttemptLogin()
+        {
+            if (_repository.Login(Username, Password))
+            {
+                _logger.Information("User {User} logged in", UserContext.Name);
+                LaunchDashboard();
+                return;
+            }
+            FailLogin();
         }
 
         public void FailLogin()
@@ -97,18 +98,9 @@ namespace heidischwartz_c969.Forms
         public void LaunchDashboard()
         {
             this.Hide();
-            var Dashboard = new MainDashboard(Scheduler, _logger);
-            Dashboard.FormClosed += (s, args) => this.Close();
-            Dashboard.Show();
-        }
-
-        private void Login_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                MessageBox.Show("trying");
-                btnLogin_Click(sender, e);
-            }
+            var dashboard = new MainDashboard(_repository, _logger);
+            dashboard.FormClosed += (s, args) => this.Close();
+            dashboard.Show();
         }
     }
 }

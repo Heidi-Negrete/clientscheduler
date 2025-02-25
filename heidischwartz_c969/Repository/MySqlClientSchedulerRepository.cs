@@ -1,8 +1,4 @@
 ﻿using heidischwartz_c969.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace heidischwartz_c969
@@ -14,6 +10,15 @@ namespace heidischwartz_c969
         public MySqlClientSchedulerRepository(ClientSchedulerContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+        
+        public bool Login(string username, string password)
+        {
+            // hardcoded for assessment, irl would validate against values from repository
+            UserContext.Name = "test";
+            UserContext.UserId = 1;
+            if (username == "test" &&  password == "test") return true;
+            return false;
         }
         
         // SEED TEST DATA
@@ -137,7 +142,78 @@ namespace heidischwartz_c969
 
     await _context.SaveChangesAsync();
 }
+        
+                public async Task<Week> GetSchedule(DateTime date)
+        {
+            // When appt added, updated, or get appointmentsbycustomerid, need to convert to local time
+            //  appointment.Start = appointment.Start.ToUniversalTime();
+            //  appointment.End = appointment.End.ToUniversalTime();
+            // REFACTOR THIS FUNCTIONALITY OUT
+            
+            
+            await SeedTestData(); // REMOVE BEFORE SUBMISSION
+            Week thisWeek = new Week();
 
+            thisWeek.TargetDate = date;
+
+            DateTime firstDayOfWeek = new DateTime(date.Year, date.Month, date.Day);
+
+            while (firstDayOfWeek.DayOfWeek != DayOfWeek.Sunday)
+            {
+                firstDayOfWeek = firstDayOfWeek.AddDays(-1);
+            }
+
+            // get appointments from repository
+            List<Appointment> appointments = await GetAppointments(UserContext.UserId, firstDayOfWeek.ToUniversalTime(), firstDayOfWeek.AddDays(6).ToUniversalTime());
+
+            // convert apts back to local time before assigning to week, which is local time
+            foreach (Appointment appointment in appointments)
+            {
+                appointment.Start = appointment.Start.ToLocalTime();
+                appointment.End = appointment.End.ToLocalTime();
+            }
+
+            thisWeek.Sunday = appointments.Where(a => a.Start.Day == firstDayOfWeek.Day).ToList();
+            thisWeek.Tuesday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(1).Day).ToList();
+            thisWeek.Wednesday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(2).Day).ToList();
+            thisWeek.Thursday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(3).Day).ToList();
+            thisWeek.Friday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(4).Day).ToList();
+            thisWeek.Saturday = appointments.Where(a => a.Start.Day == firstDayOfWeek.AddDays(5).Day).ToList();
+
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    thisWeek.Today = thisWeek.Sunday;
+                    break;
+                case DayOfWeek.Monday:
+                    thisWeek.Today = thisWeek.Monday;
+                    break;
+                case DayOfWeek.Tuesday:
+                    thisWeek.Today = thisWeek.Tuesday;
+                    break;
+                case DayOfWeek.Wednesday:
+                    thisWeek.Today = thisWeek.Wednesday;
+                    break;
+                case DayOfWeek.Thursday:
+                    thisWeek.Today = thisWeek.Thursday;
+                    break;
+                case DayOfWeek.Friday:
+                    thisWeek.Today = thisWeek.Friday;
+                    break;
+                case DayOfWeek.Saturday:
+                    thisWeek.Today = thisWeek.Saturday;
+                    break;
+                default:
+                    break;
+            }
+
+            thisWeek.CreateWeekSummary();
+
+            return thisWeek;
+        }
+
+                
+        // APPOINTMENTS
         public async Task<List<Appointment>> GetAppointmentsByCustomerId(int customerId)
         {
             try 
@@ -180,10 +256,10 @@ namespace heidischwartz_c969
             }
         }
 
-        public async Task AddAppointment(string userName, Appointment appointment)
+        public async Task AddAppointment(Appointment appointment)
         {
             appointment.CreateDate = DateTime.UtcNow;
-            appointment.CreatedBy = userName;
+            appointment.CreatedBy = UserContext.Name;
 
             try
             {
@@ -211,10 +287,10 @@ namespace heidischwartz_c969
             }
         }
 
-        public async Task UpdateAppointment(string userName, Appointment appointment)
+        public async Task UpdateAppointment(Appointment appointment)
         {
             appointment.LastUpdate = DateTime.UtcNow;
-            appointment.LastUpdateBy = userName;
+            appointment.LastUpdateBy = UserContext.Name;
             try
             {
                 _context.Appointments.Update(appointment);
@@ -227,6 +303,8 @@ namespace heidischwartz_c969
             }
         }
 
+        
+        // CUSTOMERS
         public async Task<List<Customer>> GetCustomers()
         {
             try
@@ -297,7 +375,7 @@ namespace heidischwartz_c969
             try
             {
                 _context.Customers.Update(customer);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -305,6 +383,8 @@ namespace heidischwartz_c969
                 throw new Exception("Error updating customer", ex);
             }
         }
+        
+        // ADDRESSES
 
         public async Task AddAddress(Address address)
         {
@@ -319,11 +399,82 @@ namespace heidischwartz_c969
                 throw new Exception("Error adding address", ex);
             }
         }
-
-        public void Dispose()
+        
+        public async Task UpdateAddress(Address address)
         {
-            _context?.Dispose();
+            try
+            {
+                _context.Addresses.Update(address);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw new Exception("Error updating address", ex);
+            }
         }
+        
+        
+        // CITIES
+        public async Task AddCity(City city)
+        {
+            try
+            {
+                await _context.Cities.AddAsync(city);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw new Exception("Error adding city", ex);
+            }
+        }
+        
+        public async Task UpdateCity(City city)
+        {
+            try
+            {
+                _context.Cities.Update(city);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw new Exception("Error updating city", ex);
+            }
+        }
+        
+        // Countries
+        public async Task AddCountry(Country country)
+        {
+            try
+            {
+                await _context.Countries.AddAsync(country);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw new Exception("Error adding country", ex);
+            }
+        }
+        
+        public async Task UpdateCountry(Country country)
+        {
+            try
+            {
+                _context.Countries.Update(country);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw new Exception("Error updating country", ex);
+            }
+        }
+        
+        
+        // HELPER METHODS
         
         // THere is invalid data in some of the existing test data in the database.
         private void ValidateAndSetDefaults(Customer customer)
@@ -360,6 +511,11 @@ namespace heidischwartz_c969
                     }
                 }
             }
+        }
+        
+        public void Dispose()
+        {
+            _context?.Dispose();
         }
     }
 }

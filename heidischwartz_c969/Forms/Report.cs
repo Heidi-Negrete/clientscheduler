@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace heidischwartz_c969.Forms
+﻿namespace heidischwartz_c969.Forms
 {
     public partial class Report : Form
     {
-        public Report()
+        private readonly IClientSchedulerRepository _repository;
+        private string reportType;
+        public Report(IClientSchedulerRepository repository, string reportType)
         {
             InitializeComponent();
+            _repository = repository;
+            this.reportType = reportType;
         }
 
         // REPORTS

@@ -1,51 +1,66 @@
-﻿using heidischwartz_c969.Presenters;
-using heidischwartz_c969.Views;
+﻿using heidischwartz_c969.Views;
 using heidischwartz_c969.Models;
 using Serilog;
 
 namespace heidischwartz_c969.Forms
 {
-    public partial class MainDashboard : Form, IDashboardView
+    public partial class MainDashboard : Form
     {
-        public event EventHandler<AppointmentEventArgs> AppointmentAdded;
-        public event EventHandler<AppointmentEventArgs> AppointmentChanged;
-        public event EventHandler<AppointmentEventArgs> AppointmentDeleted;
-        public event EventHandler<DateRangeEventArgs> DateChanged;
-        public event EventHandler<WeekDayChangedEventArgs> WeekDayChanged;
-        public event EventHandler<EventArgs> LoggedOut;
-        public event EventHandler<EventArgs> ReportRequested;
-        public event EventHandler<EventArgs> ClientsManaged;
-        public SchedulerService Scheduler { get; set; }
-
-        private DashboardPresenter _dashboardPresenter;
-        private ErrorProvider _errorProvider;
-        public List<string> Reports { get; set; } = new List<string>();
+        private readonly IClientSchedulerRepository _repository;
+        private readonly ILogger _logger;
 
         // Today's Appointments
-        public List<Appointment> Appointments { get; set; } = new List<Appointment>();
+        private List<Appointment> Appointments { get; set; } = new List<Appointment>();
 
         private IAddAppointment? AddAppointmentForm = null;
 
         // This Week's Appointments
-        public List<WeekSummaryView> WeekSummary { get; set; } = new List<WeekSummaryView>();
+        private List<WeekSummaryView> WeekSummary { get; set; } = new List<WeekSummaryView>();
 
-        public List<Customer> Clients { get; set; } = new List<Customer>();
-        public DateTime dateTime { get; set; }
+        private Week week = new Week();
+        
+        // Report Options
+        private List<string> Reports { get; set; } = new List<string>();
+        
+        // Client List
+        private List<Customer> Clients { get; set; } = new List<Customer>();
+        
+        // ui elements
         public string Username { get => this.lblUserStamp.Text; set => lblUserStamp.Text = value; }
         public string LoginTime { get => this.lblLoginStamp.Text; set => lblLoginStamp.Text = value; }
 
-        private readonly ILogger _logger;
 
-        public MainDashboard(SchedulerService scheduler, ILogger logger)
+
+        public MainDashboard(IClientSchedulerRepository repository, ILogger logger)
         {
             InitializeComponent();
             _logger = logger;
-            _errorProvider = new ErrorProvider();
-            Scheduler = scheduler;
+            _repository = repository;
+            
             lblLoginStamp.Text = "Logged in at \n" + DateTime.Now.ToString();
             lblUserStamp.Text = UserContext.Name;
-            _dashboardPresenter = new DashboardPresenter(this, _logger);
+            
             cbReports.DropDownStyle = ComboBoxStyle.DropDownList;
+            // report options hardcoded for now
+            List<string> availableReports = new List<string> { "Appointment Types", "Full Schedule", "Customer Activity" };
+            Reports.AddRange(availableReports);
+            
+            // Call the asynchronous method synchronously
+            Task.Run(() => InitializeAsync()).GetAwaiter().GetResult();
+            
+            BindData();
+        }
+        
+        private async Task InitializeAsync()
+        {
+            week = await _repository.GetSchedule(DateTime.Now);
+            Appointments = week.Today;
+            WeekSummary = week.WeekSummary;
+            Clients = await _repository.GetCustomers();
+            
+            // TODO
+            // also start sleeps thread to check if any appointment time within 15 minutes OPTIONAL
+            // At least get any appointments within 15 minutes of login
         }
 
         public void BindData()
@@ -60,116 +75,7 @@ namespace heidischwartz_c969.Forms
 
             UpdateBindingSources();
         }
-
-        public void ShowError(string message)
-        {
-            if (AddAppointmentForm != null)
-            {
-                AddAppointmentForm.ShowError(message);
-            }
-            else
-            {
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnAddAppt_Clicked(object sender, EventArgs e)
-        {
-            var AddAptForm = new AddAppointment(Clients);
-            AddAppointmentForm = (IAddAppointment)AddAptForm;
-            AddAptForm.Show();
-
-            // prevent user from interacting with dashboard while adding appointment
-            AddAptForm.FormClosed += (s, args) => 
-            {
-                this.Enabled = true;
-                AddAppointmentForm = null;
-            };
-        }
-
-        private void btnDeleteApt_Clicked(object sender, EventArgs e)
-        {
-            if (dgvAppointments.CurrentCell == null || !dgvAppointments.CurrentCell.Selected)
-            {
-                MessageBox.Show("Please select an appointment to delete.");
-                return;
-            }
-            DialogResult result = MessageBox.Show("Are you sure you want to delete this appointment?", "Delete Appointment", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
-            {
-                AppointmentDeleted?.Invoke(this, new AppointmentEventArgs((Appointment)dgvAppointments.CurrentRow.DataBoundItem));
-            }     
-        }
-        private void dgvAppointments_Changed(object sender, DataGridViewCellEventArgs e)
-        {
-            if (dgvAppointments.CurrentRow?.DataBoundItem is Appointment appointment)
-            {
-                AppointmentChanged?.Invoke(this, new AppointmentEventArgs(appointment));
-            }
-        }
-
-        private void btnManageClients_Clicked(object sender, EventArgs e)
-        {
-            var manageClientsForm = new ManageClients(Scheduler);
-            manageClientsForm.Show();
-
-            // prevent user from interacting with dashboard while managing clients
-            this.Enabled = false;
-            manageClientsForm.FormClosed += (s, args) =>
-            {
-                this.Enabled = true;
-                ClientsManaged?.Invoke(this, EventArgs.Empty);
-            };
-        }
-
-        private void btnGenerateReport_Clicked(object sender, EventArgs e)
-        {
-            try
-            {
-                if (cbReports.SelectedIndex == 0)
-                {
-                    MessageBox.Show("Please select a report format.");
-                    return;
-                }
-                // to do in future: add report generation logic add report name in args?
-                ReportRequested?.Invoke(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Error generating report: {Message}", ex.Message);
-                ShowError("An error occurred while generating the report.");
-            }
-        }
-
-        private void btnLogout_Clicked(object sender, EventArgs e)
-        {
-            LoggedOut?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
-        {
-            DateTime dateSelected = monthCalendar.SelectionRange.Start;
-            DateChanged?.Invoke(this, new DateRangeEventArgs(dateSelected, dateSelected));
-        }
-
-        private void dgvAppointments_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            dgvAppointments.ClearSelection();
-        }
-
-        private void dgvWeekView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            dgvWeekView.ClearSelection();
-        }
-
-        public void Logout()
-        {
-            this.Hide();
-            var Login = new Login(Scheduler, _logger);
-            Login.FormClosed += (s, args) => this.Close();
-            Login.Show();
-        }
-
+        
         public void UpdateBindingSources()
         {
             if (InvokeRequired)
@@ -184,10 +90,257 @@ namespace heidischwartz_c969.Forms
             dgvWeekView.DataSource = WeekSummary;
             lblHeadline.Text = $"{UserContext.Name}, you have {Appointments.Count} appointment{(Appointments.Count == 1 ? String.Empty : 's')} today";
         }
+        
+        // UI Events
+        
+        // Launch Add Appointment Form
+        private void btnAddAppt_Clicked(object sender, EventArgs e)
+        {
+            var AddAptForm = new AddAppointment(Clients);
+            AddAppointmentForm = (IAddAppointment)AddAptForm;
+            AddAptForm.Show();
+
+            // prevent user from interacting with dashboard while adding appointment
+            AddAptForm.FormClosed += (s, args) => 
+            {
+                this.Enabled = true;
+                AddAppointmentForm = null;
+            };
+        }
+        
+        private void btnDeleteApt_Clicked(object sender, EventArgs e)
+        {
+            if (dgvAppointments.CurrentCell == null || !dgvAppointments.CurrentCell.Selected)
+            {
+                MessageBox.Show("Please select an appointment to delete.");
+                return;
+            }
+            DialogResult result = MessageBox.Show("Are you sure you want to delete this appointment?", "Delete Appointment", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                DeleteAppointment((Appointment)dgvAppointments.CurrentRow.DataBoundItem);
+            }     
+        }
+        private void dgvAppointments_Changed(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvAppointments.CurrentRow?.DataBoundItem is Appointment appointment)
+            {
+                ChangeAppointment(appointment);
+            }
+        }
+
+        private void btnManageClients_Clicked(object sender, EventArgs e)
+        {
+            var manageClientsForm = new ManageClients(_repository);
+            manageClientsForm.Show();
+
+            // prevent user from interacting with dashboard while managing clients
+            this.Enabled = false;
+            manageClientsForm.FormClosed += (s, args) =>
+            {
+                this.Enabled = true;
+                ManageClients();
+            };
+        }
+
+        private void btnGenerateReport_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if (cbReports.SelectedIndex == 0 )
+                {
+                    MessageBox.Show("Please select a report format.");
+                    return;
+                }
+                var reportForm = new Report(_repository, cbReports.SelectedItem.ToString());
+                reportForm.Show();
+
+                // prevent user from interacting with dashboard while viewing report
+                this.Enabled = false;
+                reportForm.FormClosed += (s, args) =>
+                {
+                    this.Enabled = true;
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Error generating report: {Message}", ex.Message);
+                ShowError("An error occurred while generating the report.");
+            }
+        }
+
+        private void btnLogout_Clicked(object sender, EventArgs e)
+        {
+            Logout();
+        }
 
         private void dgvWeekView_DayClicked(object sender, DataGridViewCellMouseEventArgs e)
         {
-            WeekDayChanged?.Invoke(this, new WeekDayChangedEventArgs(e.ColumnIndex));
+            ChangeWeekDay(e.ColumnIndex);
+        }
+        private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
+        {
+            DateTime dateSelected = monthCalendar.SelectionRange.Start;
+            ChangeCurrentDate(dateSelected);
+        }
+
+        private void dgvAppointments_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            dgvAppointments.ClearSelection();
+        }
+
+        private void dgvWeekView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            dgvWeekView.ClearSelection();
+        }
+        
+        // END UI EVENTS
+        
+        public void Logout()
+        {
+            UserContext.Name = null;
+            this.Hide();
+            var Login = new Login(_repository, _logger);
+            Login.FormClosed += (s, args) => this.Close();
+            Login.Show();
+        }
+
+        public void ShowError(string message)
+        {
+            if (AddAppointmentForm != null)
+            {
+                AddAppointmentForm.ShowError(message);
+            }
+            else
+            {
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        
+        private void ChangeWeekDay(int weekDayIndex)
+        {
+            switch (weekDayIndex)
+            {
+                case 0:
+                    week.Today = week.Sunday;
+                    break;
+                case 1:
+                    week.Today = week.Monday;
+                    break;
+                case 2:
+                    week.Today = week.Tuesday;
+                    break;
+                case 3:
+                    week.Today = week.Wednesday;
+                    break;
+                case 4:
+                    week.Today = week.Thursday;
+                    break;
+                case 5:
+                    week.Today = week.Friday;
+                    break;
+                case 6:
+                    week.Today = week.Saturday;
+                    break;
+                default: break;
+            }
+            Appointments = week.Today;
+            UpdateBindingSources();
+
+        }
+        
+        private async void ChangeAppointment(Appointment appointment)
+        {
+            try
+            {
+                await _repository.UpdateAppointment(appointment);
+                week = await _repository.GetSchedule(week.TargetDate);
+                Appointments = week.Today;
+                WeekSummary = week.WeekSummary;
+                UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error updating appointment");
+                ShowError("Error updating appointment");
+            }
+        }
+        
+        private async void AddAppointment(Appointment appointment)
+        {
+            try
+            {
+                await _repository.AddAppointment(appointment);
+                week = await _repository.GetSchedule(week.TargetDate);
+                Appointments = week.Today;
+                WeekSummary = week.WeekSummary;
+                UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error adding appointment");
+                ShowError("Error adding appointment");
+            }
+        }
+        
+        private async void DeleteAppointment(Appointment appointment)
+        {
+            try
+            {
+                await _repository.DeleteAppointment(appointment);
+                week = await _repository.GetSchedule(week.TargetDate);
+                Appointments = week.Today;
+                WeekSummary = week.WeekSummary;
+                UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error deleting appointment.");
+                ShowError("Error deleting appointment.");
+            }
+        }
+        
+        private void GenerateReport(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+        
+        private async void ManageClients()
+        {
+            try
+            {
+                week = await _repository.GetSchedule(week.TargetDate);
+                Appointments = week.Today;
+                WeekSummary = week.WeekSummary;
+                UpdateBindingSources();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error updating appointment");
+                ShowError("Error updating appointment");
+            }
+        }
+
+        public bool IsWithinBusinessHours(DateTime start, DateTime end)
+        {
+            // TODO between 9AM - 5pm Monday - Friday, Eastern Standard Time
+            // this shouldn't be necessary here, available start times will be given to form for validation
+            return false;
+        }
+
+        public bool IsOverlappingAppointment(DateTime start)
+        {
+            // TODO Making an assumption that 1hr appointment slots, get appointments from db sorted by start date/time and use binary search to check?
+            // again handled elsewhere
+            return false;
+        }
+
+        private async void ChangeCurrentDate(DateTime start)
+        {
+            week = await _repository.GetSchedule(start);
+            Appointments = week.Today;
+            WeekSummary = week.WeekSummary;
+            UpdateBindingSources();
         }
     }
 }

@@ -5,9 +5,9 @@ namespace heidischwartz_c969
     public interface IClientSchedulerRepository
     {
         public Task<List<Appointment>> GetAppointments(int userId, DateTime startDate, DateTime endDate);
-        public Task UpdateAppointment(string userName, Appointment appointment);
+        public Task UpdateAppointment(Appointment appointment);
         public Task DeleteAppointment(Appointment appointment);
-        public Task AddAppointment(string userName, Appointment appointment);
+        public Task AddAppointment(Appointment appointment);
         public Task<List<Customer>> GetCustomers();
         public Task AddCustomer(Customer customer);
         public Task DeleteCustomer(Customer customer);
@@ -15,5 +15,7 @@ namespace heidischwartz_c969
         public Task AddAddress(Address address);
         public Task SeedTestData();
         public Task<List<Appointment>> GetAppointmentsByCustomerId(int customerId);
+        public bool Login(string username, string password);
+        public Task<Week> GetSchedule(DateTime date);
     }
 }
