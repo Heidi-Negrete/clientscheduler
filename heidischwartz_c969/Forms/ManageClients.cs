@@ -61,6 +61,7 @@ namespace heidischwartz_c969.Forms
                 Name = "LastUpdateBy"
             });
             
+            UpdateClients();
         }
 
         public void UpdateView()
@@ -249,6 +250,7 @@ namespace heidischwartz_c969.Forms
             if (delete == true)
             {
                 ValidateAndSetDefaults(client);
+                DeleteClient(client);
             }
             
         }
@@ -360,6 +362,14 @@ namespace heidischwartz_c969.Forms
             tbPostalCode.Text = "";
             tbCountry.Text = "";
             tbPhone.Text = "";
+            
+            tbCustomerName.Enabled = false;
+            tbAddress1.Enabled = false;
+            tbAddress2.Enabled = false;
+            tbCity.Enabled = false;
+            tbPostalCode.Enabled = false;
+            tbCountry.Enabled = false;
+            tbPhone.Enabled = false;
             btnSave.Enabled = false;
         }
         

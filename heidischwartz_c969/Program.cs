@@ -25,6 +25,7 @@ namespace heidischwartz_c969
                 .CreateLogger();
 
                 var repository = new MySqlClientSchedulerRepository(new ClientSchedulerContext());
+                repository.SeedTestData(); // Seed data for testing/demo purpose.
                 Application.Run(new Login(repository, Log.Logger));
             }
 

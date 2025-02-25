@@ -23,135 +23,145 @@ namespace heidischwartz_c969
         
         // SEED TEST DATA
         public async Task SeedTestData()
-{
-    // Clear existing data
-    _context.Appointments.RemoveRange(_context.Appointments);
-    _context.Customers.RemoveRange(_context.Customers);
-    _context.Addresses.RemoveRange(_context.Addresses);
-    await _context.SaveChangesAsync();
+        {
+            // Clear existing data
+            _context.Appointments.RemoveRange(_context.Appointments);
+            _context.Customers.RemoveRange(_context.Customers);
+            _context.Addresses.RemoveRange(_context.Addresses);
+            await _context.SaveChangesAsync();
 
-    // Seed Addresses
-    var addresses = new List<Address>
-    {
-        new Address
-        {
-            Address1 = "123 Main St",
-            Address2 = "Apt 4B",
-            CityId = 1,
-            PostalCode = "12345",
-            Phone = "555-555-1234",
-            CreateDate = DateTime.Now,
-            CreatedBy = "admin",
-            LastUpdate = DateTime.Now,
-            LastUpdateBy = "admin"
-        },
-        new Address
-        {
-            Address1 = "456 Elm St",
-            Address2 = "Suite 2A",
-            CityId = 2,
-            PostalCode = "67890",
-            Phone = "555-555-5678",
-            CreateDate = DateTime.Now,
-            CreatedBy = "admin",
-            LastUpdate = DateTime.Now,
-            LastUpdateBy = "admin"
+            // Seed Addresses
+            var addresses = new List<Address>
+            {
+                new Address
+                {
+                    Address1 = "123 Main St",
+                    Address2 = "Apt 4B",
+                    CityId = 1,
+                    PostalCode = "12345",
+                    Phone = "555-555-1234",
+                    CreateDate = DateTime.Now,
+                    CreatedBy = "admin",
+                    LastUpdate = DateTime.Now,
+                    LastUpdateBy = "admin"
+                },
+                new Address
+                {
+                    Address1 = "456 Elm St",
+                    Address2 = "Suite 2A",
+                    CityId = 2,
+                    PostalCode = "67890",
+                    Phone = "555-555-5678",
+                    CreateDate = DateTime.Now,
+                    CreatedBy = "admin",
+                    LastUpdate = DateTime.Now,
+                    LastUpdateBy = "admin"
+                }
+            };
+
+            foreach (var address in addresses)
+            {
+                await _context.Addresses.AddAsync(address);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Seed Customers
+            var customers = new List<Customer>
+            {
+                new Customer
+                {
+                    CustomerName = "John Doe",
+                    AddressId = addresses[0].AddressId,
+                    CreateDate = DateTime.Now,
+                    CreatedBy = "admin",
+                    LastUpdate = DateTime.Now,
+                    LastUpdateBy = "admin"
+                },
+                new Customer
+                {
+                    CustomerName = "Jane Smith",
+                    AddressId = addresses[1].AddressId,
+                    CreateDate = DateTime.Now,
+                    CreatedBy = "admin",
+                    LastUpdate = DateTime.Now,
+                    LastUpdateBy = "admin"
+                }
+            };
+
+            foreach (var customer in customers)
+            {
+                await _context.Customers.AddAsync(customer);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Seed Appointments
+            var appointments = new List<Appointment>
+            {
+                new Appointment
+                {
+                    CustomerId = customers[0].CustomerId,
+                    UserId = 1,
+                    Title = "Meeting with Client",
+                    Description = "Discuss project requirements",
+                    Location = "Office",
+                    Contact = "client@example.com",
+                    Type = "Business",
+                    Url = "http://example.com",
+                    Start = DateTime.Now.AddHours(1),
+                    End = DateTime.Now.AddHours(2),
+                    CreateDate = DateTime.Now,
+                    CreatedBy = "admin",
+                    LastUpdate = DateTime.Now,
+                    LastUpdateBy = "admin"
+                },
+                new Appointment
+                {
+                    CustomerId = customers[1].CustomerId,
+                    UserId = 1,
+                    Title = "Follow-up Call",
+                    Description = "Check on project progress",
+                    Location = "Phone",
+                    Contact = "client2@example.com",
+                    Type = "Business",
+                    Url = "http://example.com",
+                    Start = DateTime.Now.AddDays(1).AddHours(1),
+                    End = DateTime.Now.AddDays(1).AddHours(2),
+                    CreateDate = DateTime.Now,
+                    CreatedBy = "admin",
+                    LastUpdate = DateTime.Now,
+                    LastUpdateBy = "admin"
+                }
+            };
+
+            foreach (var appointment in appointments)
+            {
+                await _context.Appointments.AddAsync(appointment);
+            }
+
+            await _context.SaveChangesAsync();
         }
-    };
 
-    foreach (var address in addresses)
-    {
-        await _context.Addresses.AddAsync(address);
-    }
-
-    await _context.SaveChangesAsync();
-
-    // Seed Customers
-    var customers = new List<Customer>
-    {
-        new Customer
+        public async Task<List<Appointment>> GetDaysAppointments(DateTime date)
         {
-            CustomerName = "John Doe",
-            AddressId = addresses[0].AddressId,
-            CreateDate = DateTime.Now,
-            CreatedBy = "admin",
-            LastUpdate = DateTime.Now,
-            LastUpdateBy = "admin"
-        },
-        new Customer
-        {
-            CustomerName = "Jane Smith",
-            AddressId = addresses[1].AddressId,
-            CreateDate = DateTime.Now,
-            CreatedBy = "admin",
-            LastUpdate = DateTime.Now,
-            LastUpdateBy = "admin"
+            // convert date parameter to utc
+            DateTime startDate = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
+            
+            // get appointments from repository that are in the same day
+            List<Appointment> appointments = await GetAppointments(UserContext.UserId, startDate, startDate.AddDays(1));
+            // convert apts back to local time before returning
+            
+            return ConvertAppointmentsToLocalTime(appointments);
         }
-    };
 
-    foreach (var customer in customers)
-    {
-        await _context.Customers.AddAsync(customer);
-    }
-
-    await _context.SaveChangesAsync();
-
-    // Seed Appointments
-    var appointments = new List<Appointment>
-    {
-        new Appointment
-        {
-            CustomerId = customers[0].CustomerId,
-            UserId = 1,
-            Title = "Meeting with Client",
-            Description = "Discuss project requirements",
-            Location = "Office",
-            Contact = "client@example.com",
-            Type = "Business",
-            Url = "http://example.com",
-            Start = DateTime.Now.AddHours(1),
-            End = DateTime.Now.AddHours(2),
-            CreateDate = DateTime.Now,
-            CreatedBy = "admin",
-            LastUpdate = DateTime.Now,
-            LastUpdateBy = "admin"
-        },
-        new Appointment
-        {
-            CustomerId = customers[1].CustomerId,
-            UserId = 1,
-            Title = "Follow-up Call",
-            Description = "Check on project progress",
-            Location = "Phone",
-            Contact = "client2@example.com",
-            Type = "Business",
-            Url = "http://example.com",
-            Start = DateTime.Now.AddDays(1).AddHours(1),
-            End = DateTime.Now.AddDays(1).AddHours(2),
-            CreateDate = DateTime.Now,
-            CreatedBy = "admin",
-            LastUpdate = DateTime.Now,
-            LastUpdateBy = "admin"
-        }
-    };
-
-    foreach (var appointment in appointments)
-    {
-        await _context.Appointments.AddAsync(appointment);
-    }
-
-    await _context.SaveChangesAsync();
-}
-        
-                public async Task<Week> GetSchedule(DateTime date)
+        public async Task<Week> GetSchedule(DateTime date)
         {
             // When appt added, updated, or get appointmentsbycustomerid, need to convert to local time
             //  appointment.Start = appointment.Start.ToUniversalTime();
             //  appointment.End = appointment.End.ToUniversalTime();
             // REFACTOR THIS FUNCTIONALITY OUT
             
-            
-            await SeedTestData(); // REMOVE BEFORE SUBMISSION
             Week thisWeek = new Week();
 
             thisWeek.TargetDate = date;
@@ -216,11 +226,16 @@ namespace heidischwartz_c969
         // APPOINTMENTS
         public async Task<List<Appointment>> GetAppointmentsByCustomerId(int customerId)
         {
-            try 
+            try
             {
-                return await _context.Appointments
+                var appointments = await _context.Appointments
+                    .Include(a => a.Customer)
+                    .ThenInclude(c => c.Address)
+                    .ThenInclude(a => a.City)
+                    .ThenInclude(ci => ci.Country)
                     .Where(a => a.CustomerId == customerId)
                     .ToListAsync();
+                return ConvertAppointmentsToLocalTime(appointments);
             }
             catch (Exception ex)
             {
@@ -244,10 +259,15 @@ namespace heidischwartz_c969
 
             try
             {
-                return _context.Appointments
+                var appointments = await _context.Appointments
+                    .Include(a => a.Customer)
+                    .ThenInclude(c => c.Address)
+                    .ThenInclude(a => a.City)
+                    .ThenInclude(ci => ci.Country)
                     .Where(appointment => appointment.UserId == userId && appointment.Start >= startDate && appointment.End <= endDate)
                     .OrderBy(appointment => appointment.Start)
-                    .ToList();
+                    .ToListAsync();
+                return ConvertAppointmentsToLocalTime(appointments);
             }
             catch (Exception ex)
             {
@@ -303,7 +323,6 @@ namespace heidischwartz_c969
             }
         }
 
-        
         // CUSTOMERS
         public async Task<List<Customer>> GetCustomers()
         {
@@ -338,7 +357,7 @@ namespace heidischwartz_c969
             customer.Address.City.LastUpdate = DateTime.UtcNow;
             customer.Address.City.LastUpdateBy = UserContext.Name;
             ValidateAndSetDefaults(customer);
-            
+
             try
             {
                 await _context.Customers.AddAsync(customer);
@@ -371,7 +390,7 @@ namespace heidischwartz_c969
             customer.LastUpdateBy = UserContext.Name;
 
             ValidateAndSetDefaults(customer);
-            
+
             try
             {
                 _context.Customers.Update(customer);
@@ -385,7 +404,6 @@ namespace heidischwartz_c969
         }
         
         // ADDRESSES
-
         public async Task AddAddress(Address address)
         {
             try
@@ -399,7 +417,7 @@ namespace heidischwartz_c969
                 throw new Exception("Error adding address", ex);
             }
         }
-        
+
         public async Task UpdateAddress(Address address)
         {
             try
@@ -413,8 +431,7 @@ namespace heidischwartz_c969
                 throw new Exception("Error updating address", ex);
             }
         }
-        
-        
+
         // CITIES
         public async Task AddCity(City city)
         {
@@ -429,7 +446,7 @@ namespace heidischwartz_c969
                 throw new Exception("Error adding city", ex);
             }
         }
-        
+
         public async Task UpdateCity(City city)
         {
             try
@@ -443,8 +460,8 @@ namespace heidischwartz_c969
                 throw new Exception("Error updating city", ex);
             }
         }
-        
-        // Countries
+
+        // COUNTRIES
         public async Task AddCountry(Country country)
         {
             try
@@ -458,7 +475,7 @@ namespace heidischwartz_c969
                 throw new Exception("Error adding country", ex);
             }
         }
-        
+
         public async Task UpdateCountry(Country country)
         {
             try
@@ -472,11 +489,9 @@ namespace heidischwartz_c969
                 throw new Exception("Error updating country", ex);
             }
         }
-        
-        
+
         // HELPER METHODS
-        
-        // THere is invalid data in some of the existing test data in the database.
+        // There is invalid data in some of the existing test data in the database.
         private void ValidateAndSetDefaults(Customer customer)
         {
             if (customer.Address != null)
@@ -513,6 +528,16 @@ namespace heidischwartz_c969
             }
         }
         
+        private List<Appointment> ConvertAppointmentsToLocalTime(List<Appointment> appointments)
+        {
+            foreach (Appointment appointment in appointments)
+            {
+                appointment.Start = appointment.Start.ToLocalTime();
+                appointment.End = appointment.End.ToLocalTime();
+            }
+            return appointments;
+        }
+
         public void Dispose()
         {
             _context?.Dispose();

@@ -16,6 +16,6 @@ namespace heidischwartz_c969
         public Task SeedTestData();
         public Task<List<Appointment>> GetAppointmentsByCustomerId(int customerId);
         public bool Login(string username, string password);
-        public Task<Week> GetSchedule(DateTime date);
+        public Task<List<Appointment>> GetDaysAppointments(DateTime date);
     }
 }

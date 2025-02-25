@@ -13,11 +13,9 @@ namespace heidischwartz_c969.Forms
         private List<Appointment> Appointments { get; set; } = new List<Appointment>();
 
         private IAddAppointment? AddAppointmentForm = null;
-
-        // This Week's Appointments
-        private List<WeekSummaryView> WeekSummary { get; set; } = new List<WeekSummaryView>();
-
-        private Week week = new Week();
+        
+        // Date Selected
+        private DateTime dateSelected = DateTime.Now;
         
         // Report Options
         private List<string> Reports { get; set; } = new List<string>();
@@ -53,9 +51,7 @@ namespace heidischwartz_c969.Forms
         
         private async Task InitializeAsync()
         {
-            week = await _repository.GetSchedule(DateTime.Now);
-            Appointments = week.Today;
-            WeekSummary = week.WeekSummary;
+            Appointments = await _repository.GetDaysAppointments(dateSelected);
             Clients = await _repository.GetCustomers();
             
             // TODO
@@ -66,29 +62,22 @@ namespace heidischwartz_c969.Forms
         public void BindData()
         {
             dgvAppointments.AutoGenerateColumns = false;
-            dgvWeekView.AutoGenerateColumns = false;
-            dgvWeekView.ShowCellToolTips = false;
-            dgvWeekView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            dgvWeekView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
             cbReports.DataSource = Reports;
-
             UpdateBindingSources();
         }
         
-        public void UpdateBindingSources()
+        public async Task UpdateBindingSources()
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(UpdateBindingSources));
-                return;
-            }
-
+            // if (InvokeRequired)
+            // {
+            //     Invoke(new Action(UpdateBindingSources));
+            //     return;
+            // }
+            await InitializeAsync();
+            
             dgvAppointments.DataSource = null;
             dgvAppointments.DataSource = Appointments;
-            dgvWeekView.DataSource = null;
-            dgvWeekView.DataSource = WeekSummary;
-            lblHeadline.Text = $"{UserContext.Name}, you have {Appointments.Count} appointment{(Appointments.Count == 1 ? String.Empty : 's')} today";
+            lblHeadline.Text = $"{UserContext.Name}, you have {Appointments.Count} appointment{(Appointments.Count == 1 ? String.Empty : 's')} {(dateSelected.Date == DateTime.Now.Date ? "today" : $"on {dateSelected:MMMM dd, yyyy}")}";
         }
         
         // UI Events
@@ -173,25 +162,16 @@ namespace heidischwartz_c969.Forms
         {
             Logout();
         }
-
-        private void dgvWeekView_DayClicked(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            ChangeWeekDay(e.ColumnIndex);
-        }
         private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
         {
-            DateTime dateSelected = monthCalendar.SelectionRange.Start;
-            ChangeCurrentDate(dateSelected);
+            dateSelected = monthCalendar.SelectionRange.Start;
+            Console.WriteLine(dateSelected);
+            UpdateBindingSources();
         }
 
         private void dgvAppointments_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             dgvAppointments.ClearSelection();
-        }
-
-        private void dgvWeekView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
-        {
-            dgvWeekView.ClearSelection();
         }
         
         // END UI EVENTS
@@ -217,46 +197,11 @@ namespace heidischwartz_c969.Forms
             }
         }
         
-        private void ChangeWeekDay(int weekDayIndex)
-        {
-            switch (weekDayIndex)
-            {
-                case 0:
-                    week.Today = week.Sunday;
-                    break;
-                case 1:
-                    week.Today = week.Monday;
-                    break;
-                case 2:
-                    week.Today = week.Tuesday;
-                    break;
-                case 3:
-                    week.Today = week.Wednesday;
-                    break;
-                case 4:
-                    week.Today = week.Thursday;
-                    break;
-                case 5:
-                    week.Today = week.Friday;
-                    break;
-                case 6:
-                    week.Today = week.Saturday;
-                    break;
-                default: break;
-            }
-            Appointments = week.Today;
-            UpdateBindingSources();
-
-        }
-        
         private async void ChangeAppointment(Appointment appointment)
         {
             try
             {
                 await _repository.UpdateAppointment(appointment);
-                week = await _repository.GetSchedule(week.TargetDate);
-                Appointments = week.Today;
-                WeekSummary = week.WeekSummary;
                 UpdateBindingSources();
             }
             catch (Exception ex)
@@ -266,32 +211,12 @@ namespace heidischwartz_c969.Forms
             }
         }
         
-        private async void AddAppointment(Appointment appointment)
-        {
-            try
-            {
-                await _repository.AddAppointment(appointment);
-                week = await _repository.GetSchedule(week.TargetDate);
-                Appointments = week.Today;
-                WeekSummary = week.WeekSummary;
-                UpdateBindingSources();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error adding appointment");
-                ShowError("Error adding appointment");
-            }
-        }
-        
         private async void DeleteAppointment(Appointment appointment)
         {
             try
             {
                 await _repository.DeleteAppointment(appointment);
-                week = await _repository.GetSchedule(week.TargetDate);
-                Appointments = week.Today;
-                WeekSummary = week.WeekSummary;
-                UpdateBindingSources();
+                await UpdateBindingSources();
             }
             catch (Exception ex)
             {
@@ -309,38 +234,13 @@ namespace heidischwartz_c969.Forms
         {
             try
             {
-                week = await _repository.GetSchedule(week.TargetDate);
-                Appointments = week.Today;
-                WeekSummary = week.WeekSummary;
-                UpdateBindingSources();
+                await UpdateBindingSources();
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error updating appointment");
                 ShowError("Error updating appointment");
             }
-        }
-
-        public bool IsWithinBusinessHours(DateTime start, DateTime end)
-        {
-            // TODO between 9AM - 5pm Monday - Friday, Eastern Standard Time
-            // this shouldn't be necessary here, available start times will be given to form for validation
-            return false;
-        }
-
-        public bool IsOverlappingAppointment(DateTime start)
-        {
-            // TODO Making an assumption that 1hr appointment slots, get appointments from db sorted by start date/time and use binary search to check?
-            // again handled elsewhere
-            return false;
-        }
-
-        private async void ChangeCurrentDate(DateTime start)
-        {
-            week = await _repository.GetSchedule(start);
-            Appointments = week.Today;
-            WeekSummary = week.WeekSummary;
-            UpdateBindingSources();
         }
     }
 }
