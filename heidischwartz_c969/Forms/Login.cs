@@ -88,11 +88,11 @@ namespace heidischwartz_c969.Forms
         {
             if (location == "de-DE")
             {
-                MessageBox.Show("Benutzername: test\\nPasswort: test");
+                MessageBox.Show("Benutzername: test\nPasswort: test");
             }
             else
             {
-                MessageBox.Show("Username: test\\nPassword: test");
+                MessageBox.Show("Username: test\nPassword: test");
             }
         }
         public void LaunchDashboard()

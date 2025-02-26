@@ -143,9 +143,9 @@
             btnGenerateReport.BackColor = System.Drawing.SystemColors.Control;
             btnGenerateReport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             btnGenerateReport.Font = new System.Drawing.Font("Century Gothic", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            btnGenerateReport.Location = new System.Drawing.Point(45, 93);
+            btnGenerateReport.Location = new System.Drawing.Point(3, 93);
             btnGenerateReport.Name = "btnGenerateReport";
-            btnGenerateReport.Size = new System.Drawing.Size(83, 35);
+            btnGenerateReport.Size = new System.Drawing.Size(168, 61);
             btnGenerateReport.TabIndex = 17;
             btnGenerateReport.Text = "GENERATE";
             btnGenerateReport.UseVisualStyleBackColor = false;
@@ -187,9 +187,9 @@
             btnManageClients.BackColor = System.Drawing.SystemColors.Control;
             btnManageClients.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             btnManageClients.Font = new System.Drawing.Font("Century Gothic", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            btnManageClients.Location = new System.Drawing.Point(45, 60);
+            btnManageClients.Location = new System.Drawing.Point(3, 60);
             btnManageClients.Name = "btnManageClients";
-            btnManageClients.Size = new System.Drawing.Size(83, 35);
+            btnManageClients.Size = new System.Drawing.Size(168, 60);
             btnManageClients.TabIndex = 18;
             btnManageClients.Text = "MANAGE";
             btnManageClients.UseVisualStyleBackColor = false;
@@ -447,8 +447,8 @@
         private System.Windows.Forms.Panel panel3;
         private Label label2;
         private ComboBox cbReports;
-        private Button btnGenerateReport;
-        private Button btnManageClients;
+        private System.Windows.Forms.Button btnGenerateReport;
+        private System.Windows.Forms.Button btnManageClients;
         private System.Windows.Forms.Label lblLoginStamp;
         private System.Windows.Forms.Label lblUserStamp;
         private System.Windows.Forms.Button btnLogout;
