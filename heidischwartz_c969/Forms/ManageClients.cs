@@ -117,13 +117,13 @@ namespace heidischwartz_c969.Forms
             
             try
             {
-                Client.CustomerName = tbCustomerName.Text;
-                Client.Address.Address1 = tbAddress1.Text;
-                Client.Address.Address2 = tbAddress2.Text;
-                Client.Address.City.City1 = tbCity.Text;
-                Client.Address.City.Country.Country1 = tbCountry.Text;
-                Client.Address.PostalCode = tbPostalCode.Text;
-                Client.Address.Phone = tbPhone.Text;
+                Client.CustomerName = tbCustomerName.Text.Trim();
+                Client.Address.Address1 = tbAddress1.Text.Trim();
+                Client.Address.Address2 = tbAddress2.Text.Trim();
+                Client.Address.City.City1 = tbCity.Text.Trim();
+                Client.Address.City.Country.Country1 = tbCountry.Text.Trim();
+                Client.Address.PostalCode = tbPostalCode.Text.Trim();
+                Client.Address.Phone = tbPhone.Text.Trim();
 
                 if (addingClient)
                 {
@@ -252,6 +252,8 @@ namespace heidischwartz_c969.Forms
                 DeleteClient(client);
             }
             
+            UpdateView();
+            dgvClients.ClearSelection();
         }
         private void btnExit_Clicked(object sender, EventArgs e)
         {
@@ -431,11 +433,11 @@ namespace heidischwartz_c969.Forms
         
         // VALIDATION
         private bool validateClient()
-        {   
+        {
             bool isValid = true;
 
             // Validate Name
-            if (string.IsNullOrEmpty(tbCustomerName.Text))
+            if (string.IsNullOrEmpty(tbCustomerName.Text.Trim()))
             {
                 _errorProvider.SetError(tbCustomerName, "Customer name is required.");
                 isValid = false;
@@ -446,7 +448,7 @@ namespace heidischwartz_c969.Forms
             }
 
             // Validate Address
-            if (string.IsNullOrEmpty(tbAddress1.Text))
+            if (string.IsNullOrEmpty(tbAddress1.Text.Trim()))
             {
                 _errorProvider.SetError(tbAddress1, "Address is required.");
                 isValid = false;
@@ -457,7 +459,7 @@ namespace heidischwartz_c969.Forms
             }
 
             // Validate City
-            if (string.IsNullOrEmpty(tbCity.Text))
+            if (string.IsNullOrEmpty(tbCity.Text.Trim()))
             {
                 _errorProvider.SetError(tbCity, "City is required.");
                 isValid = false;
@@ -468,7 +470,7 @@ namespace heidischwartz_c969.Forms
             }
 
             // Validate Postal Code
-            if (string.IsNullOrEmpty(tbPostalCode.Text))
+            if (string.IsNullOrEmpty(tbPostalCode.Text.Trim()))
             {
                 _errorProvider.SetError(tbPostalCode, "Postal code is required.");
                 isValid = false;
@@ -489,7 +491,7 @@ namespace heidischwartz_c969.Forms
             }
 
             // Validate Country
-            if (string.IsNullOrEmpty(tbCountry.Text))
+            if (string.IsNullOrEmpty(tbCountry.Text.Trim()))
             {
                 _errorProvider.SetError(tbCountry, "Country is required.");
                 isValid = false;
@@ -500,7 +502,7 @@ namespace heidischwartz_c969.Forms
             }
 
             // Validate Phone
-            if (string.IsNullOrEmpty(tbPhone.Text))
+            if (string.IsNullOrEmpty(tbPhone.Text.Trim()))
             {
                 _errorProvider.SetError(tbPhone, "Phone number is required.");
                 isValid = false;
@@ -517,6 +519,5 @@ namespace heidischwartz_c969.Forms
 
             return isValid;
         }
-        
     }
 }

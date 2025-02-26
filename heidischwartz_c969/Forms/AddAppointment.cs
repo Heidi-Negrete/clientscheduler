@@ -142,100 +142,100 @@ namespace heidischwartz_c969.Forms
             }
             btnAdd.Enabled = ValidateAppointment();
         }
-
+        
         private bool ValidateAppointment()
-        {
-            bool isValid = true;
+{
+    bool isValid = true;
 
-            // Validate title
-            if (string.IsNullOrWhiteSpace(tbTitle.Text))
-            {
-                errorProvider.SetError(tbTitle, "Title is required.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(tbTitle, string.Empty);
-            }
+    // Validate title
+    if (string.IsNullOrWhiteSpace(tbTitle.Text.Trim()))
+    {
+        errorProvider.SetError(tbTitle, "Title is required.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(tbTitle, string.Empty);
+    }
 
-            // Validate description
-            if (string.IsNullOrWhiteSpace(tbDescription.Text))
-            {
-                errorProvider.SetError(tbDescription, "Description is required.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(tbDescription, string.Empty);
-            }
+    // Validate description
+    if (string.IsNullOrWhiteSpace(tbDescription.Text.Trim()))
+    {
+        errorProvider.SetError(tbDescription, "Description is required.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(tbDescription, string.Empty);
+    }
 
-            // Validate location
-            if (string.IsNullOrWhiteSpace(tbLocation.Text))
-            {
-                errorProvider.SetError(tbLocation, "Location is required.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(tbLocation, string.Empty);
-            }
+    // Validate location
+    if (string.IsNullOrWhiteSpace(tbLocation.Text.Trim()))
+    {
+        errorProvider.SetError(tbLocation, "Location is required.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(tbLocation, string.Empty);
+    }
 
-            // Validate contact
-            if (string.IsNullOrWhiteSpace(tbContact.Text))
-            {
-                errorProvider.SetError(tbContact, "Contact is required.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(tbContact, string.Empty);
-            }
+    // Validate contact
+    if (string.IsNullOrWhiteSpace(tbContact.Text.Trim()))
+    {
+        errorProvider.SetError(tbContact, "Contact is required.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(tbContact, string.Empty);
+    }
 
-            // Validate type
-            if (string.IsNullOrWhiteSpace(tbType.Text))
-            {
-                errorProvider.SetError(tbType, "Type is required.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(tbType, string.Empty);
-            }
+    // Validate type
+    if (string.IsNullOrWhiteSpace(tbType.Text.Trim()))
+    {
+        errorProvider.SetError(tbType, "Type is required.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(tbType, string.Empty);
+    }
 
-            // Validate URL
-            if (string.IsNullOrWhiteSpace(tbUrl.Text))
-            {
-                errorProvider.SetError(tbUrl, "URL is required.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(tbUrl, string.Empty);
-            }
+    // Validate URL
+    if (string.IsNullOrWhiteSpace(tbUrl.Text.Trim()))
+    {
+        errorProvider.SetError(tbUrl, "URL is required.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(tbUrl, string.Empty);
+    }
 
-            // Validate customer selection
-            if (cmbCustomers.SelectedIndex == -1)
-            {
-                errorProvider.SetError(cmbCustomers, "Please select a customer.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbCustomers, string.Empty);
-            }
-            
-            if (cmbStartTimes.SelectedIndex == -1)
-            {
-                errorProvider.SetError(cmbStartTimes, "Please select a start time.");
-                isValid = false;
-            }
-            else
-            {
-                errorProvider.SetError(cmbStartTimes, string.Empty);
-            }
+    // Validate customer selection
+    if (cmbCustomers.SelectedIndex == -1)
+    {
+        errorProvider.SetError(cmbCustomers, "Please select a customer.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(cmbCustomers, string.Empty);
+    }
 
-            return isValid;
-        }
+    if (cmbStartTimes.SelectedIndex == -1)
+    {
+        errorProvider.SetError(cmbStartTimes, "Please select a start time.");
+        isValid = false;
+    }
+    else
+    {
+        errorProvider.SetError(cmbStartTimes, string.Empty);
+    }
+
+    return isValid;
+}
 
         private void btnAdd_Clicked(object sender, EventArgs e)
         {
@@ -252,12 +252,12 @@ namespace heidischwartz_c969.Forms
                 return;
             }
 
-            selectedAppointment.Title = tbTitle.Text;
-            selectedAppointment.Description = tbDescription.Text;
-            selectedAppointment.Location = tbLocation.Text;
-            selectedAppointment.Contact = tbContact.Text;
-            selectedAppointment.Type = tbType.Text;
-            selectedAppointment.Url = tbUrl.Text;
+            selectedAppointment.Title = tbTitle.Text.Trim();
+            selectedAppointment.Description = tbDescription.Text.Trim();
+            selectedAppointment.Location = tbLocation.Text.Trim();
+            selectedAppointment.Contact = tbContact.Text.Trim();
+            selectedAppointment.Type = tbType.Text.Trim();
+            selectedAppointment.Url = tbUrl.Text.Trim();
             selectedAppointment.CustomerId = ((Customer)cmbCustomers.SelectedItem).CustomerId;
             selectedAppointment.Start = (DateTime)cmbStartTimes.SelectedItem;
             

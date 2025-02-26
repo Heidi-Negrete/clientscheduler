@@ -130,7 +130,7 @@
             // 
             // btnAdd
             // 
-            btnAdd.Location = new System.Drawing.Point(371, 484);
+            btnAdd.Location = new System.Drawing.Point(300, 484);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new System.Drawing.Size(75, 23);
             btnAdd.TabIndex = 9;
@@ -238,7 +238,7 @@
             // 
             // btnCancel
             // 
-            btnCancel.Location = new System.Drawing.Point(290, 484);
+            btnCancel.Location = new System.Drawing.Point(385, 484);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new System.Drawing.Size(75, 23);
             btnCancel.TabIndex = 21;
@@ -290,7 +290,7 @@
         private TextBox tbUrl;
         private System.Windows.Forms.ComboBox cmbStartTimes;
         private MonthCalendar mcAppointmentDate;
-        private Button btnAdd;
+        private System.Windows.Forms.Button btnAdd;
         private Label lblAppointmentTime;
         private Label lblStart;
         private Label lblEnd;
@@ -302,6 +302,6 @@
         private Label lblContact;
         private Label lblType;
         private Label lblUrl;
-        private Button btnCancel;
+        private System.Windows.Forms.Button btnCancel;
     }
 }

@@ -70,8 +70,6 @@ namespace heidischwartz_c969.Forms
 
         private async Task GetScheduleForEachUser()
         {
-            // get all the users. get all appointments for each user within this month.
-            // the final result should be setting tbReportInfo.Text to a string with a list grouped by users with their appointments.
             var users = await _repository.GetUsers();
             appointments = new List<Appointment>();
             foreach (var user in users)

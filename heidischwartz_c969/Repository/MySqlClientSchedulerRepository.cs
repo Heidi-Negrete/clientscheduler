@@ -211,11 +211,14 @@ namespace heidischwartz_c969
 
         public async Task AddAppointment(Appointment appointment)
         {
+            appointment.UserId = UserContext.UserId;
             appointment.Type = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(appointment.Type.Trim().ToLower());
             appointment.Start = TimeZoneInfo.ConvertTimeToUtc(appointment.Start);
             appointment.End = appointment.Start.AddMinutes(30);
             appointment.CreateDate = DateTime.UtcNow;
             appointment.CreatedBy = UserContext.Name;
+            appointment.LastUpdate = DateTime.UtcNow;
+            appointment.LastUpdateBy = UserContext.Name;
 
             try
             {
@@ -466,8 +469,7 @@ namespace heidischwartz_c969
             // Get all the times between 9:00 AM and 4:30 PM EST
             TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             DateTime estStart = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 9, 0, 0), estZone);
-            // DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 16, 30, 0), estZone);
-            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 18, 30, 0), estZone);
+            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 16, 30, 0), estZone);
 
             DateTime nowEst = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estZone);
             if (date.Date == nowEst.Date)
