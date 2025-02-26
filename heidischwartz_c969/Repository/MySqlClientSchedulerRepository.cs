@@ -1,4 +1,5 @@
-﻿using heidischwartz_c969.Models;
+﻿using System.Globalization;
+using heidischwartz_c969.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace heidischwartz_c969
@@ -210,6 +211,7 @@ namespace heidischwartz_c969
 
         public async Task AddAppointment(Appointment appointment)
         {
+            appointment.Type = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(appointment.Type.Trim().ToLower());
             appointment.Start = TimeZoneInfo.ConvertTimeToUtc(appointment.Start);
             appointment.End = appointment.Start.AddMinutes(30);
             appointment.CreateDate = DateTime.UtcNow;
@@ -243,6 +245,7 @@ namespace heidischwartz_c969
 
         public async Task UpdateAppointment(Appointment appointment)
         {
+            appointment.Type = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(appointment.Type.Trim().ToLower());
             appointment.Start = TimeZoneInfo.ConvertTimeToUtc(appointment.Start);
             appointment.End = appointment.Start.AddMinutes(30);
             appointment.LastUpdate = DateTime.UtcNow;
@@ -259,6 +262,20 @@ namespace heidischwartz_c969
                 throw new Exception("Error updating appointment", ex);
             }
         }
+        
+        // USERS
+        public async Task<List<User>> GetUsers()
+        {
+            try
+            {
+                return await _context.Users.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw new Exception("Error retrieving users", ex);
+            }
+        }
 
         // CUSTOMERS
         public async Task<List<Customer>> GetCustomers()
@@ -271,9 +288,12 @@ namespace heidischwartz_c969
                     .ThenInclude(ci => ci.Country)
                     .ToListAsync();
                 
+                // Check if each customer has appointments in the last or next 6 months and mark as active 
                 foreach (var customer in customers)
                 {
-                    customer.Active = await _context.Appointments.AnyAsync(a => a.CustomerId == customer.CustomerId);
+                    var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6);
+                    var sixMonthsAhead = DateTime.UtcNow.AddMonths(6);
+                    customer.Active = await _context.Appointments.AnyAsync(a => a.CustomerId == customer.CustomerId && a.Start >= sixMonthsAgo && a.Start <= sixMonthsAhead);
                 }
 
                 return customers;
@@ -446,7 +466,8 @@ namespace heidischwartz_c969
             // Get all the times between 9:00 AM and 4:30 PM EST
             TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             DateTime estStart = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 9, 0, 0), estZone);
-            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 16, 30, 0), estZone);
+            // DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 16, 30, 0), estZone);
+            DateTime estEnd = TimeZoneInfo.ConvertTimeToUtc(new DateTime(date.Year, date.Month, date.Day, 18, 30, 0), estZone);
 
             DateTime nowEst = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, estZone);
             if (date.Date == nowEst.Date)
@@ -478,11 +499,6 @@ namespace heidischwartz_c969
             return availableTimes;
         }
         
-        // REPORTS
-        // the number of appointment types by month
-        //	the schedule for each user
-        // one additional report of your choice Clients by active / inactive?
-        // TO DO STARTING HERE.
 
         // HELPER METHODS
         // There is invalid data in some of the existing test data in the database.

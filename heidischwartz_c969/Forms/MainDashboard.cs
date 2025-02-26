@@ -1,5 +1,4 @@
-﻿using heidischwartz_c969.Views;
-using heidischwartz_c969.Models;
+﻿using heidischwartz_c969.Models;
 using Serilog;
 
 namespace heidischwartz_c969.Forms
@@ -11,8 +10,6 @@ namespace heidischwartz_c969.Forms
 
         // Today's Appointments
         private List<Appointment> Appointments { get; set; } = new List<Appointment>();
-
-        private IAddAppointment? AddAppointmentForm = null;
         
         // Date Selected
         private DateTime dateSelected = DateTime.Now;
@@ -26,6 +23,7 @@ namespace heidischwartz_c969.Forms
         // ui elements
         public string Username { get => this.lblUserStamp.Text; set => lblUserStamp.Text = value; }
         public string LoginTime { get => this.lblLoginStamp.Text; set => lblLoginStamp.Text = value; }
+        private bool notificationsChecked = false;
 
 
 
@@ -48,6 +46,7 @@ namespace heidischwartz_c969.Forms
             Task.Run(() => InitializeAsync()).GetAwaiter().GetResult();
             
             BindData();
+            
         }
         
         private async Task InitializeAsync()
@@ -55,9 +54,6 @@ namespace heidischwartz_c969.Forms
             Appointments = await _repository.GetDaysAppointments(dateSelected);
             Clients = await _repository.GetCustomers();
             
-            // TODO
-            // also start sleeps thread to check if any appointment time within 15 minutes OPTIONAL
-            // At least get any appointments within 15 minutes of login
         }
 
         public void BindData()
@@ -74,16 +70,42 @@ namespace heidischwartz_c969.Forms
         
         public async Task UpdateBindingSources()
         {
-            // if (InvokeRequired)
-            // {
-            //     Invoke(new Action(UpdateBindingSources));
-            //     return;
-            // }
             await InitializeAsync();
             
             dgvAppointments.DataSource = null;
             dgvAppointments.DataSource = Appointments;
             lblHeadline.Text = $"{UserContext.Name}, you have {Appointments.Count} appointment{(Appointments.Count == 1 ? String.Empty : 's')} {(dateSelected.Date == DateTime.Now.Date ? "today" : $"on {dateSelected:MMMM dd, yyyy}")}";
+            
+            if (!notificationsChecked)
+            {
+                CheckNotifications();
+                notificationsChecked = true;
+            }
+        }
+        
+        private async void CheckNotifications()
+        {
+            try
+            {
+                // Get the current time
+                DateTime now = DateTime.Now.ToLocalTime();
+                
+                // Check for appointments starting within the next 15 minutes
+                foreach (var appointment in Appointments)
+                {
+                    if (appointment.Start > now && appointment.Start <= now.AddMinutes(15))
+                    {
+  
+                            MessageBox.Show($"You have an appointment with {appointment.Customer.CustomerName} starting at {appointment.Start.ToShortTimeString()}.", "Appointment Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                       
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error checking notifications.");
+                ShowError("Error checking notifications.");
+            }
         }
         
         // UI Events
@@ -167,7 +189,7 @@ namespace heidischwartz_c969.Forms
         {
             try
             {
-                if (cbReports.SelectedIndex == 0 )
+                if (cbReports.SelectedItem is null )
                 {
                     MessageBox.Show("Please select a report format.");
                     return;
@@ -195,6 +217,7 @@ namespace heidischwartz_c969.Forms
         }
         private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
         {
+            lblAppointmentsClient.Visible = false;
             dateSelected = monthCalendar.SelectionRange.Start;
             UpdateBindingSources();
         }
@@ -217,14 +240,7 @@ namespace heidischwartz_c969.Forms
 
         public void ShowError(string message)
         {
-            if (AddAppointmentForm != null)
-            {
-                AddAppointmentForm.ShowError(message);
-            }
-            else
-            {
                 MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
         }
         
         private async void ChangeAppointment(Appointment appointment)
@@ -253,11 +269,6 @@ namespace heidischwartz_c969.Forms
                 _logger.Error(ex, "Error deleting appointment.");
                 ShowError("Error deleting appointment.");
             }
-        }
-        
-        private void GenerateReport(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
         
         private async void ManageClients()

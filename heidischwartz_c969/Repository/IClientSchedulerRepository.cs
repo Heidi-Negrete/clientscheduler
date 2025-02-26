@@ -18,5 +18,6 @@ namespace heidischwartz_c969
         public bool Login(string username, string password);
         public Task<List<Appointment>> GetDaysAppointments(DateTime date);
         public Task<List<DateTime>> GetAvailableTimes(DateTime date);
+        public Task<List<User>> GetUsers();
     }
 }

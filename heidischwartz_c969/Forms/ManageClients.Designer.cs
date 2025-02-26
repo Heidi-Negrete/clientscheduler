@@ -153,7 +153,7 @@
             btnExit.Location = new System.Drawing.Point(657, 389);
             btnExit.Name = "btnExit";
             btnExit.Size = new System.Drawing.Size(131, 49);
-            btnExit.TabIndex = 48;
+            btnExit.TabIndex = 8;
             btnExit.Text = "Return to Dashboard";
             btnExit.UseVisualStyleBackColor = true;
             btnExit.Click += btnExit_Clicked;
@@ -164,7 +164,7 @@
             btnSave.Location = new System.Drawing.Point(102, 347);
             btnSave.Name = "btnSave";
             btnSave.Size = new System.Drawing.Size(75, 23);
-            btnSave.TabIndex = 49;
+            btnSave.TabIndex = 7;
             btnSave.Text = "Save";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Clicked;
@@ -193,7 +193,7 @@
             tbAddress1.Location = new System.Drawing.Point(155, 126);
             tbAddress1.Name = "tbAddress1";
             tbAddress1.Size = new System.Drawing.Size(121, 23);
-            tbAddress1.TabIndex = 22;
+            tbAddress1.TabIndex = 1;
             tbAddress1.TextChanged += tbAddress1_Changed;
             // 
             // tbAddress2
@@ -201,7 +201,7 @@
             tbAddress2.Location = new System.Drawing.Point(155, 163);
             tbAddress2.Name = "tbAddress2";
             tbAddress2.Size = new System.Drawing.Size(121, 23);
-            tbAddress2.TabIndex = 36;
+            tbAddress2.TabIndex = 2;
             tbAddress2.TextChanged += tbAddress2_Changed;
             // 
             // tbCity
@@ -209,7 +209,7 @@
             tbCity.Location = new System.Drawing.Point(155, 202);
             tbCity.Name = "tbCity";
             tbCity.Size = new System.Drawing.Size(121, 23);
-            tbCity.TabIndex = 38;
+            tbCity.TabIndex = 3;
             tbCity.TextChanged += tbCity_Changed;
             // 
             // tbPostalCode
@@ -217,7 +217,7 @@
             tbPostalCode.Location = new System.Drawing.Point(155, 239);
             tbPostalCode.Name = "tbPostalCode";
             tbPostalCode.Size = new System.Drawing.Size(121, 23);
-            tbPostalCode.TabIndex = 40;
+            tbPostalCode.TabIndex = 4;
             tbPostalCode.TextChanged += tbPostalCode_Changed;
             // 
             // tbCustomerName
@@ -225,7 +225,7 @@
             tbCustomerName.Location = new System.Drawing.Point(155, 88);
             tbCustomerName.Name = "tbCustomerName";
             tbCustomerName.Size = new System.Drawing.Size(121, 23);
-            tbCustomerName.TabIndex = 42;
+            tbCustomerName.TabIndex = 0;
             tbCustomerName.TextChanged += tbCustomerName_Changed;
             // 
             // tbCountry
@@ -233,7 +233,7 @@
             tbCountry.Location = new System.Drawing.Point(155, 275);
             tbCountry.Name = "tbCountry";
             tbCountry.Size = new System.Drawing.Size(121, 23);
-            tbCountry.TabIndex = 43;
+            tbCountry.TabIndex = 5;
             tbCountry.TextChanged += tbCountry_Changed;
             // 
             // tbPhone
@@ -241,7 +241,7 @@
             tbPhone.Location = new System.Drawing.Point(155, 306);
             tbPhone.Name = "tbPhone";
             tbPhone.Size = new System.Drawing.Size(121, 23);
-            tbPhone.TabIndex = 51;
+            tbPhone.TabIndex = 6;
             tbPhone.TextChanged += tbPhone_Changed;
             // 
             // panelLoading
@@ -327,8 +327,8 @@
         private Label label5;
         private Button btnDelete;
         private Button btnEdit;
-        private Button btnExit;
-        private Button btnSave;
+        private System.Windows.Forms.Button btnExit;
+        private System.Windows.Forms.Button btnSave;
         private Button btnAdd;
         private Label label6;
         private System.Windows.Forms.TextBox tbPhone;
