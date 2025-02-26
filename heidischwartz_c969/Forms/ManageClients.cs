@@ -9,7 +9,7 @@ namespace heidischwartz_c969.Forms
         private ErrorProvider _errorProvider = new ErrorProvider();
         public List<Customer> Clients { get; set; }
         
-        private bool delete = false;
+        private bool delete = true;
 
         public bool addingClient { get; set; }
 
